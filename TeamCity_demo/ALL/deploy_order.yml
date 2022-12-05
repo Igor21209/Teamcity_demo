@@ -1,4 +1,8 @@
 patch:
+<<<<<<< HEAD
     - Patches/Jira_1/deploy.yaml
     
+=======
+     - Patches/Jira_1/deploy.yaml
+>>>>>>> Jira_1
      
