@@ -1,0 +1,6 @@
+sql:
+    -ALL/DDL/customer.sql
+    -Patches/Jira_1/params_insert.sql
+sas:
+    -macros_1.sas
+    -macros_2.sas
