@@ -56,7 +56,8 @@ class Teamcity:
                 for q in sql:
                     q = f'@{q}'
                     byte = bytes(q, 'UTF-8')
-                    self.runSqlQuery(byte)
+                    tes = self.runSqlQuery(byte)
+                    print(tes[0].decode('UTF-8'))
             if sas:
                 for s in sas:
                     self.ssh_copy(s, self.target_dir)
