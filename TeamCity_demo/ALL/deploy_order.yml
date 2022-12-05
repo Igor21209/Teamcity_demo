@@ -1,3 +1,2 @@
 patch:
-     -Jira_1
-     -Jira_2
+     - Patches/Jira_2/deploy.yaml
