@@ -4,4 +4,5 @@ sql:
 sas:
     - TeamCity_demo/ALL/SAS/macros_1.sas
     - TeamCity_demo/ALL/SAS/macros_2.sas
-    - TeamCity_demo/ALL/SAS/test/test_1/macros_1.sas 
+    - TeamCity_demo/ALL/SAS/test/test_1/macros_1.sas
+    - TeamCity_demo/ALL/SAS/copy_test  
