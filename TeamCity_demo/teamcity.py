@@ -26,11 +26,9 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                pass
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
-                pass
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def get_env_variable(self, command):
