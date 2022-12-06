@@ -74,6 +74,11 @@ class Teamcity:
                  f'{target + dir_for_create}'])
             if dirs.returncode != 0:
                 sys.exit('Error while making directories on the server')
+            files = subprocess.run(
+                ['scp', '-i', f'{self.path_to_ssh_priv_key}', '-r', f'{sourse}',
+                 f'{self.user}@{self.host}:{target + dir_for_create}'])
+            if files.returncode != 0:
+                sys.exit('Error while copying file on the server')
         else:
             files = subprocess.run(
                 ['scp', '-i', f'{self.path_to_ssh_priv_key}', '-r', f'{sourse}',
