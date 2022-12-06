@@ -66,13 +66,13 @@ class Teamcity:
             if i == dirs[-1]:
                 break
             create_dirs = create_dirs + i + '/'
-        if len(create_dirs) == 1:
+        if len(dirs) == 1:
             files = subprocess.run(
                 ['scp', '-i', f'{self.path_to_ssh_priv_key}', '-r', f'{sourse}',
                  f'{self.user}@{self.host}:{target}'])
             if files.returncode != 0:
                 sys.exit('Error while copying file on the server')
-        elif len(create_dirs) > 1:
+        elif len(dirs) > 1:
             create = re.search('(SAS/).+', create_dirs)
             print(create)
             dir_for_create = create.group(0)[4:]
