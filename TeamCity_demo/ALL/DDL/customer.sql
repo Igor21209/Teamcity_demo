@@ -14,7 +14,8 @@ begin
       and upper(table_name) = 'CUSTOMER';
 
   if (v_column_exists = 0) then
-      execute immediate 'alter table customer address (address varchar(128))';
+      execute immediate 'alter table customer add (address varchar(128))';
   end if;
 end;
+/
 exit;

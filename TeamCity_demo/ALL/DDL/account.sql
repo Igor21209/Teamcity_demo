@@ -14,7 +14,8 @@ begin
       and upper(table_name) = 'ACCOUNT';
 
   if (v_column_exists = 0) then
-      execute immediate 'alter table ACCOUNT add (BRANCH_NAME varchar(128))';
+      execute immediate 'alter table ACOUNT add (BRANCH_NAME varchar(128))';
   end if;
 end;
+/
 exit;	
