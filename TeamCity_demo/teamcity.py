@@ -66,20 +66,20 @@ class Teamcity:
             if i == dirs[-1]:
                 break
             create_dirs = create_dirs + i + '/'
-        if len(dirs) == 1:
+        create = re.search('(SAS/).+', create_dirs)
+        if create:
+            dir_for_create = create.group(0)[4:]
+            dirs = subprocess.run(
+                ['ssh', '-i', f'{self.path_to_ssh_priv_key}', f'{self.user}@{self.host}', 'mkdir', '-p',
+                 f'{target + dir_for_create}'])
+            if dirs.returncode != 0:
+                sys.exit('Error while making directories on the server')
+        else:
             files = subprocess.run(
                 ['scp', '-i', f'{self.path_to_ssh_priv_key}', '-r', f'{sourse}',
                  f'{self.user}@{self.host}:{target}'])
             if files.returncode != 0:
                 sys.exit('Error while copying file on the server')
-        elif len(dirs) > 1:
-            create = re.search('(SAS/).+', create_dirs)
-            print(create)
-            dir_for_create = create.group(0)[4:]
-            dirs = subprocess.run(
-                ['ssh', '-i', f'{self.path_to_ssh_priv_key}', f'{self.user}@{self.host}', 'mkdir', '-p', f'{target + dir_for_create}'])
-            if dirs.returncode != 0:
-                sys.exit('Error while making directories on the server')
         create_dirs = ''
 
     def start(self):
