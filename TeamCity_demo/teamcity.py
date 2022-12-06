@@ -74,6 +74,7 @@ class Teamcity:
                 sys.exit('Error while copying file on the server')
         elif len(create_dirs) > 1:
             create = re.search('(SAS/).+', create_dirs)
+            print(create)
             dir_for_create = create.group(0)[4:]
             dirs = subprocess.run(
                 ['ssh', '-i', f'{self.path_to_ssh_priv_key}', f'{self.user}@{self.host}', 'mkdir', '-p', f'{target + dir_for_create}'])
