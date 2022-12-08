@@ -44,20 +44,20 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
-    def execute_files(self, data_pathes):
-        patches = data_pathes.get('patch')
+    def execute_files(self, patches):
         for patch in patches:
-            data = self.yaml_parser(patch)
-            sql = data.get('sql')
-            sas = data.get('sas')
-            if sql:
-                for q in sql:
-                    q = f'@{q}'
-                    byte = bytes(q, 'UTF-8')
-                    self.runSqlQuery(byte)
-            if sas:
-                for s in sas:
-                    self.ssh_copy(s, self.target_dir)
+            if patch:
+                data = self.yaml_parser(patch)
+                sql = data.get('sql')
+                sas = data.get('sas')
+                if sql:
+                    for q in sql:
+                        q = f'@{q}'
+                        byte = bytes(q, 'UTF-8')
+                        self.runSqlQuery(byte)
+                if sas:
+                    for s in sas:
+                        self.ssh_copy(s, self.target_dir)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -87,8 +87,22 @@ class Teamcity:
                 sys.exit('Error while copying file on the server')
         create_dirs = ''
 
+    def get_installed_pathes(self):
+        return ['Jira_1']
+
+    def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
+        pathes_for_install = pathes_for_install.get('patch')
+        for i in pathes_for_install:
+            for j in list_of_installed_pathes_from_db:
+                if i.find(j) != -1:
+                    replace = pathes_for_install.index(i)
+                    pathes_for_install[replace] = None
+        return pathes_for_install
+
     def start(self):
-        data = self.yaml_parser(self.path_to_yaml)
+        pathes_for_install = self.yaml_parser(self.path_to_yaml)
+        list_of_installed_pathes_from_db = self.get_installed_pathes()
+        data = self.check_patches(pathes_for_install, list_of_installed_pathes_from_db)
         self.execute_files(data)
 
 
