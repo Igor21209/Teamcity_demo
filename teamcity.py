@@ -26,7 +26,8 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                pass
             if unknown_command:
                 sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
