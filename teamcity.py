@@ -45,9 +45,11 @@ class Teamcity:
             return data
 
     def execute_files(self, patches):
-        for patch in patches:
+        patches_1 = patches.get('patch')
+        for patch in patches_1:
             if patch:
-                data = self.yaml_parser(f'Patches/{patch}/deploy.yml')
+                pars = f'Patches/{patch}/deploy.yml'
+                data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
