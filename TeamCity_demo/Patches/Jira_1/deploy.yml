@@ -1,8 +1,0 @@
-sql:
-    - TeamCity_demo/ALL/DDL/customer.sql
-    - TeamCity_demo/Patches/Jira_1/params_insert.sql
-sas:
-    - TeamCity_demo/ALL/SAS/macros_1.sas
-    - TeamCity_demo/ALL/SAS/macros_2.sas
-    - TeamCity_demo/ALL/SAS/test/test_1/macros_1.sas
-    - TeamCity_demo/ALL/SAS/copy_test  

@@ -1,0 +1,3 @@
+patch:
+    - TeamCity_demo/Patches/Jira_1/deploy.yml 
+    - TeamCity_demo/Patches/Jira_2/deploy.yml
