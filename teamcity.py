@@ -115,7 +115,7 @@ END My_Types;
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
         test = self.yaml_parser(self.path_to_yaml).get('patch')
-        get_pathes_for_insall(test)
+        self.get_pathes_for_insall(test)
 
 
 
