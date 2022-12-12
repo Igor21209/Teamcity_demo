@@ -107,9 +107,9 @@ Ret My_AA;
 END My_Types;
         '''
         query = f'@{sql}'
-        byte = bytes(q, 'UTF-8')
+        byte = bytes(query, 'UTF-8')
         self.runSqlQuery(byte)
-        return sql.strip()
+        
 
     def start(self):
         data = self.yaml_parser(self.path_to_yaml)
