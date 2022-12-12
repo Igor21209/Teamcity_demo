@@ -7,7 +7,7 @@ import sys
 
 
 class Teamcity:
-    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, schema):
+    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, oracle_user):
         self.user = user
         self.host = host
         self.target_dir = target_dir
@@ -16,11 +16,11 @@ class Teamcity:
         self.path_to_sqlplus = path_to_sqlplus
         self.oracle_host = oracle_host
         self.oracle_db = oracle_db
-        self.schema = schema
+        self.oracle_user = oracle_user
 
     def runSqlQuery(self, sqlCommand):
         session = Popen([f'{self.path_to_sqlplus}',
-                         f'{self.schema}/{self.get_env_variable("echo $pass")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+                         f'{self.oracle_user}/{self.get_env_variable("echo $PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
         session.stdin.write(sqlCommand)
         if session.communicate():
@@ -47,7 +47,7 @@ class Teamcity:
     def execute_files(self, patches):
         for patch in patches:
             if patch:
-                data = self.yaml_parser(patch)
+                data = self.yaml_parser(f'Patches/{patch}/deploy.yml')
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
@@ -87,24 +87,31 @@ class Teamcity:
                 sys.exit('Error while copying file on the server')
         create_dirs = ''
 
-    def get_installed_pathes(self):
-        return ['Jira_1']
-
-    def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
-        pathes_for_install = pathes_for_install.get('patch')
-        for i in pathes_for_install:
-            for j in list_of_installed_pathes_from_db:
-                if i.find(j) != -1:
-                    replace = pathes_for_install.index(i)
-                    pathes_for_install[replace] = None
-        return pathes_for_install
+    def get_pathes_for_insall(self, pathes_from_deply_order):
+        count = 0
+        q = ""
+        for i in pathes_from_deply_order:
+            q += f"Ret({count}) := '{i}';\n"
+            count += 1
+        count = 0
+        sql = f'''
+CREATE OR REPLACE PACKAGE BODY My_Types IS
+FUNCTION Init_My_AA RETURN My_AA IS
+Ret My_AA;
+  BEGIN
+{q}
+  RETURN Ret;
+  END Init_My_AA;
+END My_Types;
+        '''
+        query = f'@{sql}'
+        byte = bytes(q, 'UTF-8')
+        self.runSqlQuery(byte)
+        return sql.strip()
 
     def start(self):
-        pathes_for_install = self.yaml_parser(self.path_to_yaml)
-        list_of_installed_pathes_from_db = self.get_installed_pathes()
-        data = self.check_patches(pathes_for_install, list_of_installed_pathes_from_db)
+        data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
-
 
 
 
