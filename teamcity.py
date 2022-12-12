@@ -45,9 +45,11 @@ class Teamcity:
             return data
 
     def execute_files(self, patches):
-        for patch in patches:
+        patches_1 = patches.get('patch')
+        for patch in patches_1:
             if patch:
-                data = self.yaml_parser(f'Patches/{patch}/deploy.yml')
+                pars = f'Patches/{patch}/deploy.yml'
+                data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
@@ -105,14 +107,15 @@ Ret My_AA;
 END My_Types;
         '''
         query = f'@{sql}'
-        byte = bytes(q, 'UTF-8')
+        byte = bytes(query, 'UTF-8')
         self.runSqlQuery(byte)
-        return sql.strip()
+        
 
     def start(self):
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
-
+        test = self.yaml_parser(self.path_to_yaml).get('patch')
+        self.get_pathes_for_insall(test)
 
 
 
