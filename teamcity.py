@@ -19,12 +19,10 @@ class Teamcity:
         self.oracle_user = oracle_user
 
     def runSqlQuery(self, sqlCommand):
-        #command = f'@{sqlCommand}'
-        query = bytes(sqlCommand, 'UTF-8')
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{self.get_env_variable("echo $PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
-        session.stdin.write(query)
+        session.stdin.write(sqlCommand)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
@@ -130,7 +128,7 @@ END My_Types;
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
         query_1 = '''
-        @whenever sqlerror exit sql.sqlcode
+        whenever sqlerror exit sql.sqlcode
         CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
         /
         exit;
