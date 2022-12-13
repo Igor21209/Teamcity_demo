@@ -54,9 +54,10 @@ class Teamcity:
                 sas = data.get('sas')
                 if sql:
                     for q in sql:
-                        q = f'@{q}'
-                        byte = bytes(q, 'UTF-8')
-                        self.runSqlQuery(byte)
+                        query = self.get_commit_version(q)
+                        #q = f'@{q}'
+                        #byte = bytes(q, 'UTF-8')
+                        self.runSqlQuery(query)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
@@ -121,8 +122,8 @@ END My_Types;
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
-        output = sql_exec.communicate()[0]
-        print(output)
+        sql_command = sql_exec.communicate()[0]
+        return sql_command
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
