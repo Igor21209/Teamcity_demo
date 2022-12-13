@@ -117,7 +117,7 @@ END My_Types;
             shell=True)
         output = commit_version.communicate()[0].decode('UTF-8').strip()
         res = re.search('commit (.+)\n', output)
-        command_1 = f'git show {res}:./{sql_path}'
+        command_1 = f'git show {res.group(1)}:./{sql_path}'
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
