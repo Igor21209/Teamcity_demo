@@ -128,9 +128,7 @@ END My_Types;
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
         query_1 = '''
-        whenever sqlerror exit sql.sqlcode
         CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
-        exit;
         '''
         self.runSqlQuery(bytes(query_1, 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
