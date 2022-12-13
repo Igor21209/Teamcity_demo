@@ -133,7 +133,7 @@ END My_Types;
         /
         exit;
         '''
-        self.runSqlQuery(query_1)
+        self.runSqlQuery(bytes(query_1, 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
         query_2 = f'''
         SET SERVEROUTPUT ON
@@ -153,7 +153,7 @@ END My_Types;
         /   
         exit;
         '''
-        test = self.runSqlQuery(query_2)
+        test = self.runSqlQuery(bytes(query_2, 'UTF-8'))
         print(test[0].decode('UTF-8'))
 
 
