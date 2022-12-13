@@ -114,8 +114,9 @@ END My_Types;
         git_version = Popen(args=command,
             stdout=PIPE,
             shell=True)
-        res = git_version.communicate()[0].decode('UTF-8').strip()
-        print(res)
+        output = git_version.communicate()[0].decode('UTF-8').strip()
+        res = re.search('commit (.+)\n', output)
+        print(res.group(1))
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
