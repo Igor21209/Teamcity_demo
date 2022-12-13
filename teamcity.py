@@ -110,20 +110,26 @@ END My_Types;
         byte = bytes(query, 'UTF-8')
         self.runSqlQuery(byte)
         
-    def get_commit_version(self, command):
-        git_version = Popen(args=command,
+    def get_commit_version(self, sql_path):
+        command = f'git log ./{sql_path}'
+        commit_version = Popen(args=command,
             stdout=PIPE,
             shell=True)
-        output = git_version.communicate()[0].decode('UTF-8').strip()
+        output = commit_version.communicate()[0].decode('UTF-8').strip()
         res = re.search('commit (.+)\n', output)
-        print(res.group(1))
+        command_1 = f'git show {res}:./{sql_path}'
+        sql_exec = Popen(args=command_1,
+            stdout=PIPE,
+            shell=True)
+        output = sql_exec.communicate()[0].decode('UTF-8')
+        print(output)
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
         #self.execute_files(data)
         #test = self.yaml_parser(self.path_to_yaml).get('patch')
         #self.get_pathes_for_insall(test)
-        self.get_commit_version('git log ./ALL/DDL/customer.sql')
+        self.get_commit_version('ALL/DDL/customer.sql')
 
 
 
