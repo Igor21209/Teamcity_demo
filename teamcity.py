@@ -121,7 +121,7 @@ END My_Types;
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
-        output = sql_exec.communicate()[0].decode('UTF-8')
+        output = sql_exec.communicate()[0]
         print(output)
 
     def start(self):
