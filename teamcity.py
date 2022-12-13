@@ -19,10 +19,12 @@ class Teamcity:
         self.oracle_user = oracle_user
 
     def runSqlQuery(self, sqlCommand):
-        session = Popen([f'{self.path_to_sqlplus}',
+        command = f'@{sqlCommand}'
+        query = bytes(command, 'UTF-8')
+        session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{self.get_env_variable("echo $PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
-        session.stdin.write(sqlCommand)
+        session.stdin.write(query)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
@@ -125,12 +127,47 @@ END My_Types;
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
+    def get_patches_for_install(self):
+        patches = self.yaml_parser(self.path_to_yaml).get('patch')
+        query_1 = '''
+        whenever sqlerror exit sql.sqlcode
+        CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
+        /
+        exit;
+        '''
+        self.runSqlQuery(query_1)
+        deploy_order = str(patches).replace('[', '(').replace(']', ')')
+        query_2 = f'''
+        SET SERVEROUTPUT ON
+        whenever sqlerror exit sql.sqlcode
+        DECLARE
+          all_patches_list arr_patch_type := arr_patch_type{deploy_order};
+          uninstalled_patches arr_patch_type := arr_patch_type();
+          installed_patches arr_patch_type := arr_patch_type();
+        BEGIN
+          SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
+          WHERE PATCH_NAME IN (select * from table(all_patches_list));
+          uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
+          FOR i IN 1..uninstalled_patches.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));
+          END LOOP;
+        END;
+        /   
+        exit;
+        '''
+        test = self.runSqlQuery(query_2)
+        print(test[0].decode('UTF-8'))
+
+
+
     def start(self):
-        data = self.yaml_parser(self.path_to_yaml)
-        self.execute_files(data)
+        #data = self.yaml_parser(self.path_to_yaml)
+        #self.execute_files(data)
+
         #test = self.yaml_parser(self.path_to_yaml).get('patch')
         #self.get_pathes_for_insall(test)
         #self.get_commit_version('ALL/DDL/customer.sql')
+        self.get_patches_for_install()
 
 
 
