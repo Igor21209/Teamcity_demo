@@ -130,7 +130,6 @@ END My_Types;
         query_1 = '''
         whenever sqlerror exit sql.sqlcode
         CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
-        /
         exit;
         '''
         self.runSqlQuery(bytes(query_1, 'UTF-8'))
@@ -149,8 +148,7 @@ END My_Types;
           FOR i IN 1..uninstalled_patches.COUNT LOOP
             DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));
           END LOOP;
-        END;
-        /   
+        END;  
         exit;
         '''
         test = self.runSqlQuery(bytes(query_2, 'UTF-8'))
