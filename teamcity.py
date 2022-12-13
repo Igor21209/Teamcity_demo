@@ -19,8 +19,8 @@ class Teamcity:
         self.oracle_user = oracle_user
 
     def runSqlQuery(self, sqlCommand):
-        command = f'@{sqlCommand}'
-        query = bytes(command, 'UTF-8')
+        #command = f'@{sqlCommand}'
+        query = bytes(sqlCommand, 'UTF-8')
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{self.get_env_variable("echo $PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
@@ -130,7 +130,10 @@ END My_Types;
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
         query_1 = '''
+        @whenever sqlerror exit sql.sqlcode
         CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
+        /
+        exit;
         '''
         self.runSqlQuery(query_1)
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
