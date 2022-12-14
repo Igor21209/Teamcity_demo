@@ -4,6 +4,7 @@ import yaml
 from yaml.loader import SafeLoader
 import re
 import sys
+import tempfile
 
 
 class Teamcity:
@@ -127,12 +128,20 @@ END My_Types;
 
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
-        query_1 = 'whenever sqlerror exit sql.sqlcode CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32); exit;'
-        self.runSqlQuery(bytes(query_1, 'UTF-8'))
+        query_1 = "whenever sqlerror exit sql.sqlcode\
+        \nREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
+        \n/\
+        \nexit;"
+        fp = tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp')
+        fp.write(query_1)
+        fp.seek(0)
+        print(fp.read())
+        self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
+        fp.close()
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
-        query_2 = f"SET SERVEROUTPUT ON whenever sqlerror exit sql.sqlcode DECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order}; uninstalled_patches arr_patch_type := arr_patch_type(); installed_patches arr_patch_type := arr_patch_type(); BEGIN SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS WHERE PATCH_NAME IN (select * from table(all_patches_list)); uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches; FOR i IN 1..uninstalled_patches.COUNT LOOP DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i)); END LOOP; END; exit;"
-        test = self.runSqlQuery(bytes(query_2, 'UTF-8'))
-        print(test[0].decode('UTF-8'))
+        #query_2 = f"SET SERVEROUTPUT ON whenever sqlerror exit sql.sqlcode DECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order}; uninstalled_patches arr_patch_type := arr_patch_type(); installed_patches arr_patch_type := arr_patch_type(); BEGIN SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS WHERE PATCH_NAME IN (select * from table(all_patches_list)); uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches; FOR i IN 1..uninstalled_patches.COUNT LOOP DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i)); END LOOP; END; exit;"
+        #test = self.runSqlQuery(bytes(query_2, 'UTF-8'))
+        #print(test[0].decode('UTF-8'))
 
 
 
