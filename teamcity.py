@@ -95,9 +95,7 @@ class Teamcity:
         create_dirs = ''
 
     def run_shell_command(self, command):
-        process = Popen(args=command,
-            stdout=PIPE,
-            shell=True)
+        process = Popen(args=command, stdout=PIPE, shell=True)
         return process.communicate()[0]
 
     def get_commit_version(self, sql_path):
