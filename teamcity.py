@@ -114,9 +114,14 @@ class Teamcity:
 
     def git(self, patch_name):
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
-        print(rev_list)
-        commits = self.run_shell_command(rev_list).decode('UTF-8')
-        print(commits)
+        #commits = self.run_shell_command(rev_list).decode('UTF-8')
+        # здесь функция парсинга вывода rev-log, которая возвращает список комитов
+        test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
+        for commit in test:
+            branch = re.search('Merge: .+ (.+)', commit)
+            print(branch.group(1))
+
+
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
