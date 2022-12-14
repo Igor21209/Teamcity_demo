@@ -163,7 +163,8 @@ END My_Types;
             print(fp.read())
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
             print(test[0])
-            patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8')).pop(-1)
+            patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
+            patches_for_install.pop(-1)
         print(patches_for_install)
 
     def start(self):
