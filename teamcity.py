@@ -27,9 +27,11 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def get_env_variable(self, command):
@@ -129,14 +131,13 @@ END My_Types;
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
         query_1 = "whenever sqlerror exit sql.sqlcode\
-        \nREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
-        \n/\
+        \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
         \nexit;"
-        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp') as fp:
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
             fp.seek(0)
             print(fp.read())
-            self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
+            self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
@@ -153,13 +154,12 @@ END My_Types;
         \nEND LOOP;\
         \nEND;\
         \nexit;"
-        fp = tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp')
-        fp.write(query_2)
-        fp.seek(0)
-        print(fp.read())
-        test = self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
-        print(test[0].decode('UTF-8'))
-        fp.close()
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
+            fp.write(query_2)
+            fp.seek(0)
+            print(fp.read())
+            test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
+            print(test[0].decode('UTF-8'))
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
