@@ -162,7 +162,7 @@ class Teamcity:
         #self.get_commit_version('ALL/DDL/customer.sql')
         #self.get_patches_for_install()
 
-        self.git('Jira_1')
+        self.git('Jira_2')
 
 
 
