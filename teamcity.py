@@ -142,7 +142,7 @@ END My_Types;
         #deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
         deploy_order = "('Jira_1', 'Jira_2')"
         print(deploy_order)
-        query_2 = f"SET SERVEROUTPUT ON\
+        query_2 = f'''SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
         \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
@@ -157,7 +157,7 @@ END My_Types;
         \nEND LOOP;\
         \nEND;\
         \n/\
-        \nexit;"
+        \nexit;'''
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
