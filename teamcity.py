@@ -145,7 +145,7 @@ END My_Types;
         query_2 = f'''SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
-        \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
+        \nall_patches_list arr_patch_type := arr_patch_type('Jira_1', 'Jira_2');\
         \nuninstalled_patches arr_patch_type := arr_patch_type();\
         \ninstalled_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
