@@ -130,6 +130,7 @@ END My_Types;
 
     def get_patches_for_install(self):
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
+        patches_for_install = []
         query_1 = "whenever sqlerror exit sql.sqlcode\
         \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
         \n/\
@@ -162,9 +163,8 @@ END My_Types;
             print(fp.read())
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
             print(test[0])
-            a = re.findall('(.+)\n', test[0].decode('UTF-8'))
-            a.pop(-1)
-            print(a)
+            patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8')).pop(-1)
+        print(patches_for_install)
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
