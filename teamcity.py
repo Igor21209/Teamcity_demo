@@ -130,7 +130,6 @@ END My_Types;
         patches = self.yaml_parser(self.path_to_yaml).get('patch')
         query_1 = "whenever sqlerror exit sql.sqlcode\
         \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
-        \n/\
         \nexit;"
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
