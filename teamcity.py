@@ -96,7 +96,7 @@ class Teamcity:
 
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
-        return process.communicate()[0]
+        return process.communicate()[0].decode('UTF-8')
 
     def get_commit_version(self, sql_path):
         command = f'git log ./{sql_path}'
@@ -118,7 +118,9 @@ class Teamcity:
         # здесь функция парсинга вывода rev-log, которая возвращает список комитов
         test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
         for commit in test:
-            branch = re.search('Merge: .+ (.+)', commit)
+            branch = f'git show {commit}'
+            get_branch = self.run_shell_command(branch)
+            branch = re.search('Merge: .+ (.+)', get_branch)
             print(branch.group(1))
 
 
