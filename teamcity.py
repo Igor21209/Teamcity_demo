@@ -162,7 +162,7 @@ END My_Types;
             print(fp.read())
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
             print(test[0])
-            a = re.findall('(.+)\n', test[0].decode('UTF-8'))
+            a = re.findall('(.+)\n.', test[0].decode('UTF-8'))
             print(a)
 
     def start(self):
