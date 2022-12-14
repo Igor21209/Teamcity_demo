@@ -139,13 +139,11 @@ END My_Types;
             fp.seek(0)
             print(fp.read())
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-        #deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
-        deploy_order = "('Jira_1', 'Jira_2')"
-        print(deploy_order)
-        query_2 = f'''SET SERVEROUTPUT ON\
+        deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
+        query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
-        \nall_patches_list arr_patch_type := arr_patch_type('Jira_1', 'Jira_2');\
+        \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
         \nuninstalled_patches arr_patch_type := arr_patch_type();\
         \ninstalled_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
@@ -157,7 +155,7 @@ END My_Types;
         \nEND LOOP;\
         \nEND;\
         \n/\
-        \nexit;'''
+        \nexit;"
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
