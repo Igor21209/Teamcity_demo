@@ -143,7 +143,7 @@ END My_Types;
         \nDECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order};\
         \nuninstalled_patches arr_patch_type := arr_patch_type();\
         \ninstalled_patches arr_patch_type := arr_patch_type();\
-        BEGIN\
+        \nBEGIN\
         \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches\
         \nFROM PATCH_STATUS\
         \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
@@ -153,12 +153,13 @@ END My_Types;
         \nEND LOOP;\
         \nEND;\
         \nexit;"
-        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp') as fp:
-            fp.write(query_2)
-            fp.seek(0)
-            print(fp.read())
-            test = self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
-            print(test[0].decode('UTF-8'))
+        fp = tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp')
+        fp.write(query_2)
+        fp.seek(0)
+        print(fp.read())
+        test = self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
+        print(test[0].decode('UTF-8'))
+        fp.close()
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
