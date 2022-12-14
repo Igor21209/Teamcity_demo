@@ -94,27 +94,12 @@ class Teamcity:
                 sys.exit('Error while copying file on the server')
         create_dirs = ''
 
-    def get_pathes_for_insall(self, pathes_from_deply_order):
-        count = 0
-        q = ""
-        for i in pathes_from_deply_order:
-            q += f"Ret({count}) := '{i}';\n"
-            count += 1
-        count = 0
-        sql = f'''
-CREATE OR REPLACE PACKAGE BODY My_Types IS
-FUNCTION Init_My_AA RETURN My_AA IS
-Ret My_AA;
-  BEGIN
-{q}
-  RETURN Ret;
-  END Init_My_AA;
-END My_Types;
-        '''
-        query = f'@{sql}'
-        byte = bytes(query, 'UTF-8')
-        self.runSqlQuery(byte)
-        
+    def run_shell_command(self, command):
+        process = Popen(args=command,
+            stdout=PIPE,
+            shell=True)
+        return process.communicate()[0]
+
     def get_commit_version(self, sql_path):
         command = f'git log ./{sql_path}'
         commit_version = Popen(args=command,
@@ -128,6 +113,11 @@ END My_Types;
             shell=True)
         sql_command = sql_exec.communicate()[0]
         return sql_command
+
+    def git(self, patch_name):
+        rev_list = f'git rev-list --merges {patch_name}...HEAD'
+        commits = self.run_shell_command(rev_list).decode('UTF-8')
+        print(commits)
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
@@ -165,13 +155,15 @@ END My_Types;
         return patches_for_install
 
     def start(self):
-        data = self.yaml_parser(self.path_to_yaml)
-        self.execute_files(data)
+        #data = self.yaml_parser(self.path_to_yaml)
+        #self.execute_files(data)
 
         #test = self.yaml_parser(self.path_to_yaml).get('patch')
         #self.get_pathes_for_insall(test)
         #self.get_commit_version('ALL/DDL/customer.sql')
         #self.get_patches_for_install()
+
+        self.git('Jira_1')
 
 
 
