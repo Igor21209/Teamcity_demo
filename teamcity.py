@@ -124,7 +124,7 @@ class Teamcity:
             print(branch)
             get_branch = self.run_shell_command(f'git show {branch}')
             print(get_branch)
-            branch = re.search(' (.+)\)', get_branch).group(1)
+            branch = re.search('\((.+)\)', get_branch).group(1)
             print(branch, 'HERE I AM!')
             commit_version = re.search('commit (.+) ', get_branch).group(1)
             print(commit_version)
