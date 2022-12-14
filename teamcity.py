@@ -49,7 +49,8 @@ class Teamcity:
 
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
-        for patch in patches_1:
+        patches_for_install = self.get_patches_for_install(patches_1)
+        for patch in patches_for_install:
             if patch:
                 pars = f'Patches/{patch}/deploy.yml'
                 data = self.yaml_parser(pars)
@@ -128,8 +129,7 @@ END My_Types;
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
-    def get_patches_for_install(self):
-        patches = self.yaml_parser(self.path_to_yaml).get('patch')
+    def get_patches_for_install(self, patches):
         patches_for_install = []
         query_1 = "whenever sqlerror exit sql.sqlcode\
         \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
@@ -138,7 +138,6 @@ END My_Types;
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
             fp.seek(0)
-            print(fp.read())
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
         query_2 = f"SET SERVEROUTPUT ON\
@@ -160,21 +159,19 @@ END My_Types;
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
-            print(fp.read())
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-            print(test[0])
             patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
             patches_for_install.pop(-1)
-        print(patches_for_install)
+        return patches_for_install
 
     def start(self):
-        #data = self.yaml_parser(self.path_to_yaml)
-        #self.execute_files(data)
+        data = self.yaml_parser(self.path_to_yaml)
+        self.execute_files(data)
 
         #test = self.yaml_parser(self.path_to_yaml).get('patch')
         #self.get_pathes_for_insall(test)
         #self.get_commit_version('ALL/DDL/customer.sql')
-        self.get_patches_for_install()
+        #self.get_patches_for_install()
 
 
 
