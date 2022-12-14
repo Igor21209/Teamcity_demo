@@ -139,7 +139,8 @@ END My_Types;
             fp.seek(0)
             print(fp.read())
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-        deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
+        #deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
+        deploy_order = "('Jira_1', 'Jira_2')"
         print(deploy_order)
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
