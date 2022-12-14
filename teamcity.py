@@ -140,12 +140,13 @@ END My_Types;
             print(fp.read())
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
+        print('deploy_order: ', deploy_order)
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
-        \n  all_patches_list arr_patch_type := arr_patch_type('Jira-1', 'Jira-2');\
-        \n  uninstalled_patches arr_patch_type := arr_patch_type();\
-        \n  installed_patches arr_patch_type := arr_patch_type();\
+        \nall_patches_list arr_patch_type := arr_patch_type('Jira-1', 'Jira-2');\
+        \nuninstalled_patches arr_patch_type := arr_patch_type();\
+        \ninstalled_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
         \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS\
         \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
