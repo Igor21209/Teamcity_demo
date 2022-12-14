@@ -161,7 +161,7 @@ END My_Types;
             fp.seek(0)
             print(fp.read())
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-            print(test[0].decode('UTF-8'))
+            print(test[0])
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
