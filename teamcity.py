@@ -132,18 +132,33 @@ END My_Types;
         \nREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
         \n/\
         \nexit;"
-        fp = tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp')
-        fp.write(query_1)
-        fp.seek(0)
-        print(fp.read())
-        self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
-        fp.close()
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp') as fp:
+            fp.write(query_1)
+            fp.seek(0)
+            print(fp.read())
+            self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
-        #query_2 = f"SET SERVEROUTPUT ON whenever sqlerror exit sql.sqlcode DECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order}; uninstalled_patches arr_patch_type := arr_patch_type(); installed_patches arr_patch_type := arr_patch_type(); BEGIN SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS WHERE PATCH_NAME IN (select * from table(all_patches_list)); uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches; FOR i IN 1..uninstalled_patches.COUNT LOOP DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i)); END LOOP; END; exit;"
-        #test = self.runSqlQuery(bytes(query_2, 'UTF-8'))
-        #print(test[0].decode('UTF-8'))
-
-
+        query_2 = f"SET SERVEROUTPUT ON\
+        \nwhenever sqlerror exit sql.sqlcode\
+        \nDECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order};\
+        \nuninstalled_patches arr_patch_type := arr_patch_type();\
+        \ninstalled_patches arr_patch_type := arr_patch_type();\
+        BEGIN\
+        \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches\
+        \nFROM PATCH_STATUS\
+        \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
+        \nuninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;\
+        \nFOR i IN 1..uninstalled_patches.COUNT LOOP\
+        \nDBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));\
+        \nEND LOOP;\
+        \nEND;\
+        \nexit;"
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', dir='/tmp') as fp:
+            fp.write(query_2)
+            fp.seek(0)
+            print(fp.read())
+            test = self.runSqlQuery(bytes(f'@{fp.name}', 'UTF-8'))
+            print(test[0].decode('UTF-8'))
 
     def start(self):
         #data = self.yaml_parser(self.path_to_yaml)
