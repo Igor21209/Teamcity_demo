@@ -140,7 +140,7 @@ END My_Types;
             print(fp.read())
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
-        print('deploy_order: ', deploy_order)
+        print(deploy_order)
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
