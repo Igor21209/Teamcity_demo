@@ -113,7 +113,7 @@ class Teamcity:
         return sql_command
 
     def git(self, patch_name):
-        rev_list = f'git rev-list --merges HEAD^{patch_name}'
+        rev_list = f'git rev-list --merges HEAD ^{patch_name}'
         print(rev_list)
         commits = self.run_shell_command(rev_list).decode('UTF-8')
         print(commits)
