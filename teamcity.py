@@ -143,7 +143,7 @@ END My_Types;
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
-        \n  all_patches_list arr_patch_type := arr_patch_type{deploy_order};\
+        \n  all_patches_list arr_patch_type := arr_patch_type('Jira-1', 'Jira-2');\
         \n  uninstalled_patches arr_patch_type := arr_patch_type();\
         \n  installed_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
@@ -151,7 +151,7 @@ END My_Types;
         \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
         \nuninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;\
         \nFOR i IN 1..uninstalled_patches.COUNT LOOP\
-        \nDBMS_OUTPUT.PUT_LINE(length(uninstalled_patches(i)));\
+        \nDBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));\
         \nEND LOOP;\
         \nEND;\
         \n/\
