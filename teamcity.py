@@ -147,8 +147,7 @@ END My_Types;
         \nuninstalled_patches arr_patch_type := arr_patch_type();\
         \ninstalled_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
-        \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches\
-        \nFROM PATCH_STATUS\
+        \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS\
         \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
         \nuninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;\
         \nFOR i IN 1..uninstalled_patches.COUNT LOOP\
