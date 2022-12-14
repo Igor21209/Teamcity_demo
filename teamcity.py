@@ -142,7 +142,8 @@ END My_Types;
         deploy_order = str(patches).replace('[', '(').replace(']', ')')
         query_2 = f"SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
-        \nDECLARE all_patches_list arr_patch_type := arr_patch_type{deploy_order};\
+        \nDECLARE\
+        \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
         \nuninstalled_patches arr_patch_type := arr_patch_type();\
         \ninstalled_patches arr_patch_type := arr_patch_type();\
         \nBEGIN\
