@@ -113,9 +113,12 @@ class Teamcity:
         return sql_command
 
     def git(self, patch_name):
+        tes = self.run_shell_command('git show --pretty=fuller 1286d4c')
+        print(tes)
+
+
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
         commits = self.run_shell_command(rev_list)
-        print(commits)
         list_of_commits = re.findall('(.+)\n', commits)
         print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
         print(list_of_commits)
