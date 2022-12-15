@@ -157,19 +157,16 @@ class Teamcity:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
-            print(list_of_commits)
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
-                branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
-                print(branch_1)
+                branch_1 = re.search('Merge: .+ (.+)~?', get_branch).group(1)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
                 branch_name = re.search('.+ (.+)', name_of_branch).group(1)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit, date, branch_name))
         commit_list.sort(reverse=False, key=self.sort)
-        print(commit_list)
         return commit_list
 
     def get_patches_for_install(self, patches):
