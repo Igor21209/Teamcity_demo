@@ -149,6 +149,7 @@ class Teamcity:
             if branch_name == patch_name:
                 commit_list.append(Commit(commit_version, date, branch_name))
         commit_list.sort(reverse=False, key=self.sort)
+        print(commit_list)
 
 
 
