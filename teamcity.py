@@ -96,8 +96,7 @@ class Teamcity:
 
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
-        if process.communicate():
-            return process.communicate()[0].decode('UTF-8')
+        return process.communicate()[0].decode('UTF-8')
 
     def get_commit_version(self, sql_path):
         command = f'git log ./{sql_path}'
