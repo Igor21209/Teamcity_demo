@@ -120,16 +120,13 @@ class Teamcity:
         print(list_of_commits)
         # здесь функция парсинга вывода rev-log, которая возвращает список комитов
         test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
-        for commit in test:
+        for commit in list_of_commits:
             branch = f'git show {commit}'
             get_branch = self.run_shell_command(branch)
             branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
             print(branch_1)
             get_branch_1 = self.run_shell_command(f'git show  {branch_1}')
             print(get_branch_1)
-
-            #branch_name = re.search('\((.+)\)', get_branch_1).group(1)
-            #print(branch_name, 'HERE I AM!')
             print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
             commit_version = re.search('commit (.+)', get_branch_1).group(1)
             print(commit_version)
