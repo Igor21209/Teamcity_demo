@@ -121,14 +121,14 @@ class Teamcity:
         for commit in test:
             branch = f'git show {commit}'
             get_branch = self.run_shell_command(branch)
-            branch = re.search('Merge: .+ (.+)', get_branch).group(1)
-            #print(branch)
-            get_branch = self.run_shell_command(f'git show {branch}')
-            #print(get_branch)
+            branch_1 = re.search('Merge: (.+)', get_branch).group(1)
+            print(branch_1)
+            get_branch_1 = self.run_shell_command(f'git show {branch_1}')
+            print(get_branch_1)
 
             #branch = re.search('\((.+)\)', get_branch).group(1)
             #print(branch, 'HERE I AM!')
-            commit_version = re.search('commit', get_branch).group(1)
+            #commit_version = re.search('commit', get_branch_1).group(1)
             #print(commit_version)
             #date = re.search('Date: (.+)', get_branch).group(1).strip()
             #print(date)
