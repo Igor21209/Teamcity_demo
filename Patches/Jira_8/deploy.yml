@@ -1,3 +1,3 @@
 sql:
-    -ALL/DDL/account.sql
-    -Patches/Jira-2/params_insert.sql
+    - ALL/DDL/account.sql
+    - Patches/Jira-2/params_insert.sql
