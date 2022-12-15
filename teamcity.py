@@ -195,6 +195,7 @@ class Teamcity:
         \nEND;\
         \n/\
         \nexit;"
+        print(query_2)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
