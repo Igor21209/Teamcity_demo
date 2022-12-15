@@ -1,3 +1,8 @@
 sql:
+<<<<<<< HEAD
     -ALL/DDL/account.sql
     -Patches/Jira-2/params_insert.sql
+=======
+    - ALL/DDL/account.sql
+    - Patches/Jira_2/params_insert.sql
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2

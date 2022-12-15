@@ -5,6 +5,7 @@ from yaml.loader import SafeLoader
 import re
 import sys
 import tempfile
+<<<<<<< HEAD
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -14,6 +15,8 @@ class Commit:
     commit: str = None
     date: datetime = None
     branch: str = None
+=======
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
 
 
 class Teamcity:
@@ -36,9 +39,17 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
+<<<<<<< HEAD
                 sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
                 sys.exit(f'Error while executing sql code in file {sqlCommand}')
+=======
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+            if unknown_command:
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
         return session.communicate()
 
     def get_env_variable(self, command):
@@ -54,6 +65,7 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
+<<<<<<< HEAD
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
         index_scan = 0
         while index_scan < len(pathes_for_install):
@@ -92,18 +104,35 @@ class Teamcity:
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
+=======
+    def execute_files(self, patches):
+        patches_1 = patches.get('patch')
+        patches_for_install = self.get_patches_for_install(patches_1)
+        for patch in patches_for_install:
+            if patch:
+                pars = f'Patches/{patch}/deploy.yml'
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
                     for q in sql:
+<<<<<<< HEAD
                         query = self.get_commit_version(q, patch.commit)
+=======
+                        query = self.get_commit_version(q)
+                        #q = f'@{q}'
+                        #byte = bytes(q, 'UTF-8')
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
                         self.runSqlQuery(query)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
+<<<<<<< HEAD
         else:
             sys.exit(f'Some problem with patch')
+=======
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -137,15 +166,27 @@ class Teamcity:
         process = Popen(args=command, stdout=PIPE, shell=True)
         return process.communicate()[0].decode('UTF-8')
 
+<<<<<<< HEAD
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
         print(command_1)
+=======
+    def get_commit_version(self, sql_path):
+        command = f'git log ./{sql_path}'
+        commit_version = Popen(args=command,
+            stdout=PIPE,
+            shell=True)
+        output = commit_version.communicate()[0].decode('UTF-8').strip()
+        res = re.search('commit (.+)\n', output)
+        command_1 = f'git show {res.group(1)}:./{sql_path}'
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
+<<<<<<< HEAD
     def sort(self, date):
         return date.date
 
@@ -167,6 +208,20 @@ class Teamcity:
         commit_list.sort(reverse=False, key=self.sort)
         print(commit_list)
         return commit_list
+=======
+    def git(self, patch_name):
+        rev_list = f'git rev-list --merges HEAD ^{patch_name}'
+        #commits = self.run_shell_command(rev_list).decode('UTF-8')
+        # здесь функция парсинга вывода rev-log, которая возвращает список комитов
+        test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
+        for commit in test:
+            branch = f'git show {commit}'
+            get_branch = self.run_shell_command(branch)
+            branch = re.search('Merge: .+ (.+)', get_branch)
+            print(branch.group(1))
+
+
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
@@ -204,9 +259,21 @@ class Teamcity:
         return patches_for_install
 
     def start(self):
+<<<<<<< HEAD
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
 
+=======
+        #data = self.yaml_parser(self.path_to_yaml)
+        #self.execute_files(data)
+
+        #test = self.yaml_parser(self.path_to_yaml).get('patch')
+        #self.get_pathes_for_insall(test)
+        #self.get_commit_version('ALL/DDL/customer.sql')
+        #self.get_patches_for_install()
+
+        self.git('Jira_2')
+>>>>>>> e1e3aa5c7139d6091c649165199cf20d862a9aa2
 
 
 
