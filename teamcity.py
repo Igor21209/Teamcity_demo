@@ -125,8 +125,8 @@ class Teamcity:
             get_branch_1 = self.run_shell_command(f'git show {branch_1}')
             print(get_branch_1)
 
-            #branch = re.search('\((.+)\)', get_branch).group(1)
-            #print(branch, 'HERE I AM!')
+            branch_name = re.search('\((.+)\)', get_branch_1).group(1)
+            print(branch_name, 'HERE I AM!')
             #commit_version = re.search('commit', get_branch_1).group(1)
             #print(commit_version)
             #date = re.search('Date: (.+)', get_branch).group(1).strip()
