@@ -127,8 +127,9 @@ class Teamcity:
 
             #branch_name = re.search('\((.+)\)', get_branch_1).group(1)
             #print(branch_name, 'HERE I AM!')
-            #commit_version = re.search('commit', get_branch_1).group(1)
-            #print(commit_version)
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            commit_version = re.search('commit (.+)', get_branch_1).group(1)
+            print(commit_version)
             #date = re.search('Date: (.+)', get_branch).group(1).strip()
             #print(date)
 
