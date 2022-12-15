@@ -94,6 +94,7 @@ class Teamcity:
                 pars = f'Patches/{patch.branch}/deploy.yml'
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
+                print(sql, '  AAAAAAAAAAAa')
                 sas = data.get('sas')
                 if sql:
                     for q in sql:
@@ -195,7 +196,6 @@ class Teamcity:
         \nEND;\
         \n/\
         \nexit;"
-        print(query_2)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
