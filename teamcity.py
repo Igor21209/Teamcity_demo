@@ -96,8 +96,7 @@ class Teamcity:
 
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
-        print(process.communicate()[0])
-        return process.communicate()[0].decode('UTF-8')
+        return process.communicate()[0] #.decode('UTF-8')
 
     def get_commit_version(self, sql_path):
         command = f'git log ./{sql_path}'
@@ -116,6 +115,7 @@ class Teamcity:
     def git(self, patch_name):
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
         commits = self.run_shell_command(rev_list)
+        print(commits)
         list_of_commits = re.findall('(.+)\n', commits)
         print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
         print(list_of_commits)
