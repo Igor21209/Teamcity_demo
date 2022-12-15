@@ -155,6 +155,7 @@ class Teamcity:
         commit_list = []
         for patch_name in patches:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
+            print(rev_list)
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
             for commit in list_of_commits:
