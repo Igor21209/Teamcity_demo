@@ -89,7 +89,7 @@ class Teamcity:
         print(check)
         print(patches_for_install_order)
         print(list_of_commit_objects)
-        if check:
+        if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
                 data = self.yaml_parser(pars)
