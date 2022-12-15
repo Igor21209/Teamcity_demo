@@ -1,0 +1,3 @@
+patch:
+     - Patches/Jira_1/deploy.yaml
+     
