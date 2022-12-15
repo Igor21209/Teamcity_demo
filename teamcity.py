@@ -161,6 +161,7 @@ class Teamcity:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
                 branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
+                print(branch_1)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
                 branch_name = re.search('.+ (.+)~', name_of_branch).group(1)
