@@ -36,11 +36,9 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                pass
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
-                pass
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def get_env_variable(self, command):
@@ -84,16 +82,10 @@ class Teamcity:
 
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
-        # с любым порядком список патчей, который возвращает бд
         patches_for_install = self.get_patches_for_install(patches_1)
-        # нужна функция для сортировки списка, полученного из бд выше, в правильном порядке в соответствии с deploy_order
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
-        # список справильным порядком передаем в ф-ию git, получаем отсортированный список объекттов Сommit
         list_of_commit_objects = self.git(patches_for_install)
-
-        # вызываем функцию проверки, в которую нужо передать список объектов и список патчей в нужном порядке
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        #если проверка прощла, то пускаем код дальше, выолняем sql по версиям коммитов
         if check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
@@ -213,12 +205,6 @@ class Teamcity:
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
 
-        #test = self.yaml_parser(self.path_to_yaml).get('patch')
-        #self.get_pathes_for_insall(test)
-        #self.get_commit_version('ALL/DDL/customer.sql')
-        #self.get_patches_for_install()
-
-        #self.git()
 
 
 
