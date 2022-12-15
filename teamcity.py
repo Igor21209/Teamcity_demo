@@ -131,26 +131,18 @@ class Teamcity:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
-            #print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
-            #print(list_of_commits)
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
                 branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
-                #print(branch_1)
                 get_branch_1 = self.run_shell_command(f'git show  {branch_1}')
-                #print(get_branch_1)
-                #print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
                 commit_version = re.search('commit (.+)', get_branch_1).group(1)
-                #print(commit_version)
                 date = re.search('Date: (.+)', get_branch_1).group(1).strip()
-                #print(date)
                 name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
                 branch_name = re.search('.+ (.+)', name_of_branch).group(1)
-                #print(branch_name)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit_version, date, branch_name))
-            commit_list.sort(reverse=False, key=self.sort)
+        commit_list.sort(reverse=False, key=self.sort)
         print(commit_list)
 
 
