@@ -97,7 +97,6 @@ class Teamcity:
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
         if process.communicate():
-            print(process.communicate()[0])
             return process.communicate()[0].decode('UTF-8')
 
     def get_commit_version(self, sql_path):
