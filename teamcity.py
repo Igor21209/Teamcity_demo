@@ -123,7 +123,7 @@ class Teamcity:
             branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
             print(branch_1)
             get_branch_1 = self.run_shell_command(f'git show {branch_1}')
-            print(type(get_branch_1))
+            print(get_branch_1)
 
             #branch_name = re.search('\((.+)\)', get_branch_1).group(1)
             #print(branch_name, 'HERE I AM!')
