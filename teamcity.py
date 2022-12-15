@@ -56,24 +56,59 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
+    def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
+        index_scan = 0
+        while index_scan < len(pathes_for_install):
+            if pathes_for_install[index_scan] not in (list_of_installed_pathes_from_db):
+                pathes_for_install.pop(index_scan)
+            else:
+                index_scan += 1
+        return pathes_for_install
+
+    def check_incorrect_order(self, commits_array, branch_array):
+        patch_index = 0
+        result_compare_order = False
+        if len(commits_array) < len(branch_array):
+            return True
+        while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
+            patch_index += 1
+        for branch in branch_array:
+            if patch_index >= len(commits_array):
+                result_compare_order = True
+                return result_compare_order
+            if branch != commits_array[patch_index].branch:
+                result_compare_order = True
+                return result_compare_order
+            patch_index += 1
+        return result_compare_order
+
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
+        # с любым порядком список патчей, который возвращает бд
         patches_for_install = self.get_patches_for_install(patches_1)
-        for patch in patches_for_install:
-            if patch:
-                pars = f'Patches/{patch}/deploy.yml'
+        # нужна функция для сортировки списка, полученного из бд выше, в правильном порядке в соответствии с deploy_order
+        patches_for_install_order = self.check_patches(patches_1, patches_for_install)
+        # список справильным порядком передаем в ф-ию git, получаем отсортированный список объекттов Сommit
+        list_of_commit_objects = self.git(patches_for_install)
+
+        # вызываем функцию проверки, в которую нужо передать список объектов и список патчей в нужном порядке
+        check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        #если проверка прощла, то пускаем код дальше, выолняем sql по версиям коммитов
+        if check:
+            for patch in list_of_commit_objects:
+                pars = f'Patches/{patch.branch}/deploy.yml'
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
                     for q in sql:
-                        query = self.get_commit_version(q)
-                        #q = f'@{q}'
-                        #byte = bytes(q, 'UTF-8')
+                        query = self.get_commit_version(q, patch.commit)
                         self.runSqlQuery(query)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
+        else:
+            sys.exit(f'Some problem with patch')
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -107,14 +142,8 @@ class Teamcity:
         process = Popen(args=command, stdout=PIPE, shell=True)
         return process.communicate()[0].decode('UTF-8')
 
-    def get_commit_version(self, sql_path):
-        command = f'git log ./{sql_path}'
-        commit_version = Popen(args=command,
-            stdout=PIPE,
-            shell=True)
-        output = commit_version.communicate()[0].decode('UTF-8').strip()
-        res = re.search('commit (.+)\n', output)
-        command_1 = f'git show {res.group(1)}:./{sql_path}'
+    def get_commit_version(self, sql_path, commit):
+        command_1 = f'git show {commit}:./{sql_path}'
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
@@ -124,10 +153,9 @@ class Teamcity:
     def sort(self, date):
         return date.date
 
-    def git(self):
-        test = ['Jira_1', 'Jira_2']
+    def git(self, patches):
         commit_list = []
-        for patch_name in test:
+        for patch_name in patches:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
@@ -144,10 +172,7 @@ class Teamcity:
                     commit_list.append(Commit(commit_version, date, branch_name))
         commit_list.sort(reverse=False, key=self.sort)
         print(commit_list)
-
-
-
-
+        return commit_list
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
@@ -185,15 +210,15 @@ class Teamcity:
         return patches_for_install
 
     def start(self):
-        #data = self.yaml_parser(self.path_to_yaml)
-        #self.execute_files(data)
+        data = self.yaml_parser(self.path_to_yaml)
+        self.execute_files(data)
 
         #test = self.yaml_parser(self.path_to_yaml).get('patch')
         #self.get_pathes_for_insall(test)
         #self.get_commit_version('ALL/DDL/customer.sql')
         #self.get_patches_for_install()
 
-        self.git()
+        #self.git()
 
 
 
