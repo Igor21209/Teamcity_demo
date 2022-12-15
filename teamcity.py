@@ -148,7 +148,7 @@ class Teamcity:
             #print(branch_name)
             commit_list.append(Commit(commit_version, date, branch_name))
         print(commit_list)
-        commit_list.sort(reverse=False, key=self.sort)
+        commit_list.sort(reverse=True, key=self.sort)
         print()
         print(commit_list)
 
