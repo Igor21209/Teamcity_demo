@@ -5,6 +5,15 @@ from yaml.loader import SafeLoader
 import re
 import sys
 import tempfile
+from dataclasses import dataclass, field
+from datetime import datetime
+
+
+@dataclass
+class Commit:
+    commit: str = None
+    date: datetime = None
+    branch: str = None
 
 
 class Teamcity:
@@ -113,29 +122,29 @@ class Teamcity:
         return sql_command
 
     def git(self, patch_name):
+        commit_list = []
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
         commits = self.run_shell_command(rev_list)
         list_of_commits = re.findall('(.+)\n', commits)
-        print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
-        print(list_of_commits)
-        # здесь функция парсинга вывода rev-log, которая возвращает список комитов
-        test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
+        #print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
+        #print(list_of_commits)
         for commit in list_of_commits:
             branch = f'git show {commit}'
             get_branch = self.run_shell_command(branch)
             branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
-            print(branch_1)
+            #print(branch_1)
             get_branch_1 = self.run_shell_command(f'git show  {branch_1}')
-            print(get_branch_1)
-            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            #print(get_branch_1)
+            #print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
             commit_version = re.search('commit (.+)', get_branch_1).group(1)
-            print(commit_version)
+            #print(commit_version)
             date = re.search('Date: (.+)', get_branch_1).group(1).strip()
-            print(date)
+            #print(date)
             name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
             branch_name = re.search('.+ (.+)', name_of_branch).group(1)
-            print(branch_name)
-
+            #print(branch_name)
+            commit_list.append(Commit(commit_version, date, branch_name))
+        print(commit_list)
 
 
 
