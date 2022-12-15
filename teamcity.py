@@ -115,8 +115,9 @@ class Teamcity:
     def git(self, patch_name):
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
         commits = self.run_shell_command(rev_list)
+        list_of_commits = re.findall('(.+)\n', commits)
         print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
-        print(commits)
+        print(list_of_commits)
         # здесь функция парсинга вывода rev-log, которая возвращает список комитов
         test = ['6fa195d81100f2edf27b1d762398699b76c30105', '6170336e96ee220b9fb1e0efef847cc603a67b77']
         for commit in test:
