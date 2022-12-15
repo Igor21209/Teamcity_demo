@@ -86,6 +86,7 @@ class Teamcity:
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        print(check)
         if check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
