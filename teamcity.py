@@ -121,6 +121,9 @@ class Teamcity:
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
+    def sort(self, date):
+        return date.date
+
     def git(self, patch_name):
         commit_list = []
         rev_list = f'git rev-list --merges HEAD ^{patch_name}'
@@ -145,7 +148,9 @@ class Teamcity:
             #print(branch_name)
             commit_list.append(Commit(commit_version, date, branch_name))
         print(commit_list)
-
+        commit_list.sort(reverse=False, key=self.sort)
+        print()
+        print(commit_list)
 
 
 
