@@ -96,6 +96,7 @@ class Teamcity:
 
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
+        print(process.communicate()[0])
         return process.communicate()[0].decode('UTF-8')
 
     def get_commit_version(self, sql_path):
@@ -128,7 +129,7 @@ class Teamcity:
             #branch = re.search('\((.+)\)', get_branch).group(1)
             #print(branch, 'HERE I AM!')
             commit_version = re.search('commit', get_branch).group(1)
-            print(commit_version)
+            #print(commit_version)
             #date = re.search('Date: (.+)', get_branch).group(1).strip()
             #print(date)
 
