@@ -96,8 +96,10 @@ class Teamcity:
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
+                    print('ВОЙДИ!')
                     for q in sql:
                         query = self.get_commit_version(q, patch.commit)
+                        print(query)
                         self.runSqlQuery(query)
                 if sas:
                     for s in sas:
