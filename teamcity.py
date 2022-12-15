@@ -146,11 +146,11 @@ class Teamcity:
             name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
             branch_name = re.search('.+ (.+)', name_of_branch).group(1)
             #print(branch_name)
-            commit_list.append(Commit(commit_version, date, branch_name))
-        print(commit_list)
-        commit_list.sort(reverse=True, key=self.sort)
-        print()
-        print(commit_list)
+            if branch_name == patch_name:
+                commit_list.append(Commit(commit_version, date, branch_name))
+        commit_list.sort(reverse=False, key=self.sort)
+
+
 
 
 
