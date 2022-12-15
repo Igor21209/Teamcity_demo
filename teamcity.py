@@ -94,11 +94,12 @@ class Teamcity:
                 pars = f'Patches/{patch.branch}/deploy.yml'
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
-                print(sql, '  AAAAAAAAAAAa')
                 sas = data.get('sas')
                 if sql:
+                    print('ВОЙДИ!')
                     for q in sql:
                         query = self.get_commit_version(q, patch.commit)
+                        print(query)
                         self.runSqlQuery(query)
                 if sas:
                     for s in sas:
