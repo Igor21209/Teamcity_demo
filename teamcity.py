@@ -87,6 +87,7 @@ class Teamcity:
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         print(check)
+        print(self.run_shell_command('git --version'))
         print(patches_for_install_order)
         print(list_of_commit_objects)
         if not check:
