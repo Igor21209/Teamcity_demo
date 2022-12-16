@@ -82,16 +82,10 @@ class Teamcity:
 
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
-        print(patches_1)
         patches_for_install = self.get_patches_for_install(patches_1)
-        print(patches_for_install)
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
-        print(patches_for_install_order)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        print(check)
-        print(patches_for_install_order)
-        print(list_of_commit_objects)
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
@@ -142,7 +136,6 @@ class Teamcity:
 
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
-        print(command_1)
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
@@ -161,21 +154,13 @@ class Teamcity:
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
-                #print(get_branch)
                 branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
-                print(branch_1)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
-                print('HEY')
-                print(self.run_shell_command('pwd'))
-                print(name_of_branch)
                 branch_name = re.search('.+ (.+)', name_of_branch).group(1)
-                print(branch_name)
-                print(name_of_branch)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit, date, branch_name))
         commit_list.sort(reverse=False, key=self.sort)
-        print(commit_list)
         return commit_list
 
     def get_patches_for_install(self, patches):
