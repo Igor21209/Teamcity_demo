@@ -66,6 +66,8 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         patch_index = 0
         result_compare_order = False
+        if len(branch_array) == 0:
+            return False
         if len(commits_array) < len(branch_array):
             return True
         while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
@@ -83,12 +85,11 @@ class Teamcity:
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
         patches_for_install = self.get_patches_for_install(patches_1)
+        if len(patches_for_install) == 0:
+            sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        print(check)
-        print(patches_for_install_order)
-        print(list_of_commit_objects)
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
@@ -102,8 +103,18 @@ class Teamcity:
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
+                add_to_install_patches = f"whenever sqlerror exit sql.sqlcode\
+                \nMERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch.branch}')\
+                \nWHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)\
+                \nVALUES('{patch.branch}', current_timestamp, 'SUCCESS')\
+                \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';\
+                \nexit;"
+                with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
+                    fp.write(add_to_install_patches)
+                    fp.seek(0)
+                    self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         else:
-            sys.exit(f'Some problem with patch')
+            sys.exit(f"Patches order does not match commits order")
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -139,7 +150,6 @@ class Teamcity:
 
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
-        print(command_1)
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
@@ -160,12 +170,13 @@ class Teamcity:
                 get_branch = self.run_shell_command(branch)
                 branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
-                name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
-                branch_name = re.search('.+ (.+)', name_of_branch).group(1)
+                #name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
+                #branch_name = re.search('.+ (.+)', name_of_branch).group(1)
+                name_of_branch = self.run_shell_command(f'git show {branch_1}')
+                branch_name = re.search('\{\%(.+)\%\}', name_of_branch).group(1)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit, date, branch_name))
         commit_list.sort(reverse=False, key=self.sort)
-        print(commit_list)
         return commit_list
 
     def get_patches_for_install(self, patches):
