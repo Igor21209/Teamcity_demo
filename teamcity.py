@@ -103,6 +103,7 @@ class Teamcity:
                         test = f"whenever sqlerror exit sql.sqlcode\
                         \nupdate test_table\
                         \nset intfield = id\
+                        \n/\
                         \nexit;"
                         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                             fp.write(test)
