@@ -99,11 +99,12 @@ class Teamcity:
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
-                add_to_install_patches = f"MERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch.branch}')\
+                add_to_install_patches = f"whenever sqlerror exit sql.sqlcode\
+                \nMERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch.branch}')\
                 \nWHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)\
                 \nVALUES('{patch.branch}', current_timestamp, 'SUCCESS')\
-                \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS'"
-                print(add_to_install_patches)
+                \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';\
+                \nexit;"
                 with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                     fp.write(add_to_install_patches)
                     fp.seek(0)
