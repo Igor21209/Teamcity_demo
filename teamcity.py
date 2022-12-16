@@ -7,6 +7,7 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime
+import time
 
 
 @dataclass
@@ -96,6 +97,7 @@ class Teamcity:
                     for q in sql:
                         query = self.get_commit_version(q, patch.commit)
                         self.runSqlQuery(query)
+                        time.sleep(240)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
