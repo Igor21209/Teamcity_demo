@@ -103,6 +103,7 @@ class Teamcity:
                 \nWHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)\
                 \nVALUES('{patch.branch}', current_timestamp, 'SUCCESS')\
                 \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS'"
+                print(add_to_install_patches)
                 with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                     fp.write(add_to_install_patches)
                     fp.seek(0)
