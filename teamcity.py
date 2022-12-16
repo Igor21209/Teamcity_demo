@@ -173,6 +173,7 @@ class Teamcity:
                 #name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
                 #branch_name = re.search('.+ (.+)', name_of_branch).group(1)
                 name_of_branch = self.run_shell_command(f'git show {branch_1}')
+                print(name_of_branch)
                 branch_name = re.search('\{\%(.+)\%\}', name_of_branch).group(1)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit, date, branch_name))
