@@ -167,6 +167,7 @@ class Teamcity:
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 name_of_branch = self.run_shell_command(f'git name-rev {branch_1}')
                 print('HEY')
+                print(self.run_shell_command('pwd'))
                 print(name_of_branch)
                 branch_name = re.search('.+ (.+)', name_of_branch).group(1)
                 print(branch_name)
