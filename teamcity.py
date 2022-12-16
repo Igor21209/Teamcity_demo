@@ -105,7 +105,7 @@ class Teamcity:
                 \nexit;"""
                 with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                     fp.write(add_to_install_patches)
-                    fp.seek(0)
+                    fp.flush()
                     self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         else:
             sys.exit(f"Patches order does not match commits order")
@@ -174,7 +174,7 @@ class Teamcity:
         \nexit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
-            fp.seek(0)
+            fp.flush()
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
         query_2 = f"""SET SERVEROUTPUT ON\
@@ -195,7 +195,7 @@ class Teamcity:
         \nexit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
-            fp.seek(0)
+            fp.flush()
             test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
             patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
             patches_for_install.pop(-1)
