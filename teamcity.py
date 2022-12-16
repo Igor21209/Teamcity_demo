@@ -82,12 +82,14 @@ class Teamcity:
 
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
+        print(patches_1)
         patches_for_install = self.get_patches_for_install(patches_1)
+        print(patches_for_install)
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
+        print(patches_for_install_order)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         print(check)
-        print(self.run_shell_command('git --version'))
         print(patches_for_install_order)
         print(list_of_commit_objects)
         if not check:
