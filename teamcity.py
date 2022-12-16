@@ -18,7 +18,7 @@ class Commit:
 
 
 class Teamcity:
-    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, oracle_user):
+    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, oracle_user, oracle_port):
         self.user = user
         self.host = host
         self.target_dir = target_dir
@@ -28,10 +28,11 @@ class Teamcity:
         self.oracle_host = oracle_host
         self.oracle_db = oracle_db
         self.oracle_user = oracle_user
+        self.oracle_port = oracle_port
 
     def runSqlQuery(self, sqlCommand):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
-                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
         session.stdin.write(sqlCommand)
         if session.communicate():
@@ -96,12 +97,12 @@ class Teamcity:
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
-                add_to_install_patches = f"whenever sqlerror exit sql.sqlcode\
+                add_to_install_patches = f"""whenever sqlerror exit sql.sqlcode\
                 \nMERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch.branch}')\
                 \nWHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)\
                 \nVALUES('{patch.branch}', current_timestamp, 'SUCCESS')\
                 \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';\
-                \nexit;"
+                \nexit;"""
                 with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                     fp.write(add_to_install_patches)
                     fp.seek(0)
@@ -167,16 +168,16 @@ class Teamcity:
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
-        query_1 = "whenever sqlerror exit sql.sqlcode\
+        query_1 = """whenever sqlerror exit sql.sqlcode\
         \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
         \n/\
-        \nexit;"
+        \nexit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
             fp.seek(0)
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
-        query_2 = f"SET SERVEROUTPUT ON\
+        query_2 = f"""SET SERVEROUTPUT ON\
         \nwhenever sqlerror exit sql.sqlcode\
         \nDECLARE\
         \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
@@ -191,7 +192,7 @@ class Teamcity:
         \nEND LOOP;\
         \nEND;\
         \n/\
-        \nexit;"
+        \nexit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.seek(0)
