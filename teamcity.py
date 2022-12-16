@@ -103,6 +103,8 @@ class Teamcity:
                 \nWHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)\
                 \nVALUES({patch.branch}, current_timestamp, 'SUCCESS')\
                 \nWHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS'"
+                print(add_to_install_patches)
+                print(bytes(add_to_install_patches, 'UTF-8'))
                 self.runSqlQuery(bytes(add_to_install_patches, 'UTF-8'))
         else:
             sys.exit(f'Some problem with patch')
