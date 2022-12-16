@@ -161,7 +161,7 @@ class Teamcity:
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
-                print(get_branch)
+                #print(get_branch)
                 branch_1 = re.search('Merge: .+ (.+)', get_branch).group(1)
                 print(branch_1)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
