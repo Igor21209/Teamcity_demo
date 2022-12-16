@@ -66,6 +66,8 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         patch_index = 0
         result_compare_order = False
+        if len(branch_array) == 0:
+            return True
         if len(commits_array) < len(branch_array):
             return True
         while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
@@ -109,7 +111,6 @@ class Teamcity:
                     fp.write(add_to_install_patches)
                     fp.seek(0)
                     self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-
         else:
             sys.exit(f'Some problem with patch')
 
