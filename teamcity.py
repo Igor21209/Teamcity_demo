@@ -42,14 +42,6 @@ class Teamcity:
                 sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
-    def get_env_variable(self, command):
-        process = Popen(
-            args=command,
-            stdout=PIPE,
-            shell=True
-        )
-        return process.communicate()[0].decode('UTF-8').strip()
-
     def yaml_parser(self, path):
         with open(f'{path}', 'r') as f:
             data = yaml.load(f, Loader=SafeLoader)
@@ -157,9 +149,6 @@ class Teamcity:
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
-    def sort(self, date):
-        return date.date
-
     def git(self, patches):
         commit_list = []
         for patch_name in patches:
@@ -173,7 +162,7 @@ class Teamcity:
                 branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
                 if branch_name == patch_name:
                     commit_list.append(Commit(commit, date, branch_name))
-        commit_list.sort(reverse=False, key=self.sort)
+        commit_list.sort(reverse=False, key=lambda comm: comm.date)
         return commit_list
 
     def get_patches_for_install(self, patches):
