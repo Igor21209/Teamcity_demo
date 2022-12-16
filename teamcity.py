@@ -168,31 +168,31 @@ exit;"""
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
-        query_1 = """whenever sqlerror exit sql.sqlcode\
-        \nCREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);\
-        \n/\
-        \nexit;"""
+        query_1 = """whenever sqlerror exit sql.sqlcode
+CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
+/
+exit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_1)
             fp.flush()
             self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
-        query_2 = f"""SET SERVEROUTPUT ON\
-        \nwhenever sqlerror exit sql.sqlcode\
-        \nDECLARE\
-        \nall_patches_list arr_patch_type := arr_patch_type{deploy_order};\
-        \nuninstalled_patches arr_patch_type := arr_patch_type();\
-        \ninstalled_patches arr_patch_type := arr_patch_type();\
-        \nBEGIN\
-        \nSELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS\
-        \nWHERE PATCH_NAME IN (select * from table(all_patches_list));\
-        \nuninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;\
-        \nFOR i IN 1..uninstalled_patches.COUNT LOOP\
-        \nDBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));\
-        \nEND LOOP;\
-        \nEND;\
-        \n/\
-        \nexit;"""
+        query_2 = f"""SET SERVEROUTPUT ON
+whenever sqlerror exit sql.sqlcode
+DECLARE
+all_patches_list arr_patch_type := arr_patch_type{deploy_order};
+uninstalled_patches arr_patch_type := arr_patch_type();
+installed_patches arr_patch_type := arr_patch_type();
+BEGIN
+SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
+WHERE PATCH_NAME IN (select * from table(all_patches_list));
+uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
+FOR i IN 1..uninstalled_patches.COUNT LOOP
+DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));
+END LOOP;
+END;
+/
+exit;"""
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
             fp.write(query_2)
             fp.flush()
