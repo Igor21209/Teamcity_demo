@@ -85,6 +85,8 @@ class Teamcity:
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
         patches_for_install = self.get_patches_for_install(patches_1)
+        if len(patches_for_install) == 0:
+            sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
@@ -112,7 +114,7 @@ class Teamcity:
                     fp.seek(0)
                     self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
         else:
-            sys.exit(f'Some problem with patch')
+            sys.exit(f"Patches order does not match commits order")
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
