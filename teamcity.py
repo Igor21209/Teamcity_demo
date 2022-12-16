@@ -100,6 +100,14 @@ class Teamcity:
                     for q in sql:
                         query = self.get_commit_version(q, patch.commit)
                         self.runSqlQuery(query)
+                        test = f"whenever sqlerror exit sql.sqlcode\
+                        \nupdate test_table\
+                        \nset intfield = id\
+                        \nexit;"
+                        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
+                            fp.write(test)
+                            fp.seek(0)
+                            self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
