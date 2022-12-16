@@ -67,7 +67,7 @@ class Teamcity:
         patch_index = 0
         result_compare_order = False
         if len(branch_array) == 0:
-            return True
+            return False
         if len(commits_array) < len(branch_array):
             return True
         while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
