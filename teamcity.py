@@ -76,6 +76,10 @@ class Teamcity:
             patch_index += 1
         return result_compare_order
 
+    def get_current_branch(self):
+        current_branch = self.run_shell_command('git branch --show-current').strip()
+        return current_branch
+
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
         patches_for_install = self.get_patches_for_install(patches_1)
