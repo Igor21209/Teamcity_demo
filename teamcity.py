@@ -7,6 +7,7 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime
+import os
 
 
 @dataclass
@@ -30,7 +31,7 @@ class Teamcity:
 
     def runSqlQuery(self, sqlCommand):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
-                         f'{self.oracle_user}/{self.get_env_variable("echo $PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
         session.stdin.write(sqlCommand)
         if session.communicate():
