@@ -50,7 +50,7 @@ class Teamcity:
 
     '''
     Метод предназначен для восстановления порядка установки патчей в соответствии с порядком, указанным в файле deploy_order.yml.
-    Он необходим, т.к. бд возвращает случайный порядок патчей для утановки.
+    Он необходим, т.к. бд возвращает случайный порядок патчей для установки.
     set(pathes_for_install) - set(list_of_installed_pathes_from_db) не получится использовать, т.к. порядок в таком случае не сохраняется.
     '''
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
@@ -64,7 +64,7 @@ class Teamcity:
 
     '''
     Метод необходим для проверки соответствия количества патчей, предполагаемых установке, и правильность порядка их следования.
-    Собранный список объектов класса Commit в методе git сверяется со списком патчей для устновки, собранным в соответствии с 
+    Собранный список объектов класса Commit в методе git сверяется со списком патчей для устнавки, собранным в соответствии с 
     порядком, указанным в файле deploy_order.yml
     '''
     def check_incorrect_order(self, commits_array, branch_array):
@@ -149,9 +149,9 @@ exit;"""
             if i == dirs[-1]:
                 break
             create_dirs = create_dirs + i + '/'
-        create = re.search('(SAS/).+', create_dirs)
+        create = re.search('SAS/(.+)', create_dirs)
         if create:
-            dir_for_create = create.group(0)[4:]
+            dir_for_create = create.group(1)
             dirs = subprocess.run(
                 ['ssh', '-i', f'{self.path_to_ssh_priv_key}', f'{self.user}@{self.host}', 'mkdir', '-p',
                  f'{target + dir_for_create}'])
@@ -188,7 +188,7 @@ exit;"""
     2. Через команду git show <хэш коммита> находим нужную версию коммита
     Результатом работы метода является отсортированный по дате список объектов класса Commit, которые содержат в себе:
     - нужный хэш коммита, по которому потом будут применяться sql скрипты (метод get_commit_version)
-    - дата этого уоммита
+    - дата этого коммита
     - название ветки с патчом
     '''
     def git(self, patches):
