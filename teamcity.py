@@ -30,11 +30,18 @@ class Teamcity:
         self.oracle_user = oracle_user
         self.oracle_port = oracle_port
 
-    def runSqlQuery(self, sqlCommand):
+    def runSqlQuery(self, sqlCommand=None, sqlFile=None):
+        if sqlCommand:
+            with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
+                fp.write(sqlCommand)
+                fp.flush()
+                sql = bytes(f"@{fp.name}", 'UTF-8')
+        else:
+            sql = bytes(f"@{sqlFile}", 'UTF-8')
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
-        session.stdin.write(sqlCommand)
+        session.stdin.write(sql)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
@@ -97,10 +104,7 @@ WHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)
 VALUES('{patch}', current_timestamp, 'SUCCESS')
 WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
-        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
-           fp.write(add_to_install_patches)
-           fp.flush()
-           self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
+        self.runSqlQuery(add_to_install_patches)
 
 
     def execute_files(self, patches):
@@ -137,7 +141,7 @@ exit;"""
             sas = data.get('sas')
             if sql:
                 for q in sql:
-                    self.runSqlQuery(bytes(f"@{q}", 'UTF-8'))
+                    self.runSqlQuery(None, q)
             if sas:
                 for s in sas:
                     self.ssh_copy(s, self.target_dir)
@@ -180,7 +184,7 @@ exit;"""
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
-        sql_command = sql_exec.communicate()[0]
+        sql_command = sql_exec.communicate()[0].decode('UTF-8')
         return sql_command
 
     '''
@@ -214,10 +218,7 @@ exit;"""
 CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
 /
 exit;"""
-        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
-            fp.write(query_1)
-            fp.flush()
-            self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
+        self.runSqlQuery(query_1)
         deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
         query_2 = f"""SET SERVEROUTPUT ON
 whenever sqlerror exit sql.sqlcode
@@ -235,12 +236,9 @@ END LOOP;
 END;
 /
 exit;"""
-        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
-            fp.write(query_2)
-            fp.flush()
-            test = self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
-            patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
-            patches_for_install.pop(-1)
+        test = self.runSqlQuery(query_2)
+        patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
+        patches_for_install.pop(-1)
         return patches_for_install
 
     def start(self):
