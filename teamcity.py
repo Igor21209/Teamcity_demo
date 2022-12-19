@@ -74,7 +74,7 @@ class Teamcity:
     '''
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
         sp = set(list_of_installed_pathes_from_db)
-        pathes_for_install = [p for p in pathes_for_install if p not in sp]
+        pathes_for_install = [p for p in pathes_for_install if p in sp]
         #index_scan = 0
         #while index_scan < len(pathes_for_install):
         #    if pathes_for_install[index_scan] not in (list_of_installed_pathes_from_db):
