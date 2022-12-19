@@ -30,7 +30,7 @@ class Teamcity:
         self.oracle_user = oracle_user
         self.oracle_port = oracle_port
 
-    def runSqlQuery(self, sqlCommand=None, sqlFile=None):
+    def runSqlQuery(self, sqlCommand, sqlFile=None):
         if sqlCommand:
             with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                 fp.write(sqlCommand)
