@@ -121,6 +121,7 @@ exit;"""
                     if sql:
                         for q in sql:
                             query = self.get_commit_version(q, patch.commit)
+                            print(query)
                             self.runSqlQuery(query)
                     if sas:
                         for s in sas:
@@ -176,7 +177,6 @@ exit;"""
 
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
-        print(command_1)
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
