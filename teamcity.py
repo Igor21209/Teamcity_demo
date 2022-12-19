@@ -90,21 +90,6 @@ class Teamcity:
         print(branch_array)
         return result_compare_order
 
-'''        
-        if len(commits_array) < len(branch_array):
-            return True
-        while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
-            patch_index += 1
-        for branch in branch_array:
-            if patch_index >= len(commits_array):
-                result_compare_order = True
-                return result_compare_order
-            if branch != commits_array[patch_index].branch:
-                result_compare_order = True
-                return result_compare_order
-            patch_index += 1
-'''
-
     def get_current_branch(self):
         current_branch = self.run_shell_command('git branch --show-current').strip()
         return current_branch
