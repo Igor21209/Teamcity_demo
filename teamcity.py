@@ -75,13 +75,6 @@ class Teamcity:
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
         sp = set(list_of_installed_pathes_from_db)
         pathes_for_install = [p for p in pathes_for_install if p in sp]
-        #index_scan = 0
-        #while index_scan < len(pathes_for_install):
-        #    if pathes_for_install[index_scan] not in (list_of_installed_pathes_from_db):
-        #        pathes_for_install.pop(index_scan)
-        #    else:
-        #        index_scan += 1
-        print(pathes_for_install)
         return pathes_for_install
 
     '''
@@ -92,8 +85,11 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         patch_index = 0
         result_compare_order = False
-        if len(branch_array) == 0:
-            return False
+        tes = [commit for commit in commits_array commit.commit]
+        print(tes)
+        print(branch_array)
+
+'''        
         if len(commits_array) < len(branch_array):
             return True
         while branch_array[0] != commits_array[patch_index].branch and patch_index < len(commits_array):
@@ -106,6 +102,7 @@ class Teamcity:
                 result_compare_order = True
                 return result_compare_order
             patch_index += 1
+'''
         return result_compare_order
 
     def get_current_branch(self):
