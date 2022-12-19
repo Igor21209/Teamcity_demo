@@ -85,7 +85,7 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         patch_index = 0
         result_compare_order = False
-        tes = [commit for commit.commit in commits_array]
+        tes = [commit.commit for commit in commits_array]
         print(tes)
         print(branch_array)
         return result_compare_order
