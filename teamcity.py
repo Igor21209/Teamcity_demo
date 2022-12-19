@@ -73,15 +73,14 @@ class Teamcity:
     set(pathes_for_install) - set(list_of_installed_pathes_from_db) не получится использовать, т.к. порядок в таком случае не сохраняется.
     '''
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
-        #sp = set(list_of_installed_pathes_from_db)
-        #pathes_for_install = [p for p in pathes_for_install if p not in sp]
-        #print(pathes_for_install)
-        index_scan = 0
-        while index_scan < len(pathes_for_install):
-            if pathes_for_install[index_scan] not in (list_of_installed_pathes_from_db):
-                pathes_for_install.pop(index_scan)
-            else:
-                index_scan += 1
+        sp = set(pathes_for_install)
+        pathes_for_install = [p for p in pathes_for_install if p not in sp]
+        #index_scan = 0
+        #while index_scan < len(pathes_for_install):
+        #    if pathes_for_install[index_scan] not in (list_of_installed_pathes_from_db):
+        #        pathes_for_install.pop(index_scan)
+        #    else:
+        #        index_scan += 1
         print(pathes_for_install)
         return pathes_for_install
 
