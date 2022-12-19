@@ -88,6 +88,7 @@ class Teamcity:
         tes = [commit for commit.commit in commits_array]
         print(tes)
         print(branch_array)
+        return result_compare_order
 
 '''        
         if len(commits_array) < len(branch_array):
@@ -103,7 +104,6 @@ class Teamcity:
                 return result_compare_order
             patch_index += 1
 '''
-        return result_compare_order
 
     def get_current_branch(self):
         current_branch = self.run_shell_command('git branch --show-current').strip()
