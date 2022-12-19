@@ -176,6 +176,7 @@ exit;"""
 
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
+        print(command_1)
         sql_exec = Popen(args=command_1,
             stdout=PIPE,
             shell=True)
