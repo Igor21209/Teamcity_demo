@@ -106,7 +106,7 @@ exit;"""
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
             list_of_commit_objects = []
-            list_of_commit_objects = append(Commit('commit', 'qwert', patches_for_install[0]))
+            list_of_commit_objects.append(Commit('commit', 'qwert', patches_for_install[0]))
             check = False
         if not check:
             for patch in list_of_commit_objects:
