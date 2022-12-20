@@ -85,9 +85,7 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
         commits_list = [commit.commit for commit in commits_array]
-        print(commits_list)
-        print(commits_array)
-        if not len(commits_list) != len(branch_array):
+        if not len(commits_list) == len(branch_array):
             result_compare_order = True
         return result_compare_order
 
@@ -106,43 +104,33 @@ exit;"""
 
 
     def execute_files(self, patches):
-        patches_1 = patches.get('patch')
-        patches_for_install = self.get_patches_for_install(patches_1)
+        patches_for_install = self.get_patches_for_install(patches.get('patch'))
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
-        if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
-            list_of_commit_objects = self.git(patches_for_install)
-            check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-            if not check:
-                for patch in list_of_commit_objects:
-                    pars = f'Patches/{patch.branch}/deploy.yml'
-                    data = self.yaml_parser(pars)
-                    sql = data.get('sql')
-                    sas = data.get('sas')
-                    if sql:
+#        if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
+        list_of_commit_objects = self.git(patches_for_install)
+        check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        if not check:
+            for patch in list_of_commit_objects:
+                pars = f'Patches/{patch.branch}/deploy.yml'
+                data = self.yaml_parser(pars)
+                sql = data.get('sql')
+                sas = data.get('sas')
+                if sql:
+                    if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
                         for q in sql:
                             query = self.get_commit_version(q, patch.commit)
                             self.runSqlQuery(query)
-                    if sas:
-                        for s in sas:
-                            self.ssh_copy(s, self.target_dir)
-                    self.log_patch_db_success(patch.branch)
-            else:
-                sys.exit(f"Patches order does not match commits order")
+                    else:
+                        for q in sql:
+                            self.runSqlQuery(query)
+                if sas:
+                    for s in sas:
+                        self.ssh_copy(s, self.target_dir)
+                self.log_patch_db_success(patch.branch)
         else:
-            patch = patches_for_install[0]
-            pars = f'Patches/{patch}/deploy.yml'
-            data = self.yaml_parser(pars)
-            sql = data.get('sql')
-            sas = data.get('sas')
-            if sql:
-                for q in sql:
-                    self.runSqlQuery(None, q)
-            if sas:
-                for s in sas:
-                    self.ssh_copy(s, self.target_dir)
-            self.log_patch_db_success(patch)
+            sys.exit(f"Patches order does not match commits order")
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
