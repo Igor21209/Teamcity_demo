@@ -100,17 +100,17 @@ exit;"""
             sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches, patches_for_install) #вернёт патчи из бд для установки в верном порядке
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
-        print(is_single_patch)
         if is_single_patch:
             list_of_commit_objects = self.git(patches_for_install)
-            list_of_patches = [commit.branch for commit in list_of_commit_objects]
+            #list_of_patches = [commit.branch for commit in list_of_commit_objects]
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
-            list_of_patches = patches_for_install_order
+            list_of_commit_objects = []
+            list_of_commit_objects = append(Commit('commit', 'qwert', patches_for_install[0]))
             check = False
         if not check:
-            for patch in list_of_patches:
-                pars = f'Patches/{patch}/deploy.yml'
+            for patch in list_of_commit_objects:
+                pars = f'Patches/{patch.branch}/deploy.yml'
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
@@ -124,7 +124,7 @@ exit;"""
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
-                self.log_patch_db_success(patch)
+                self.log_patch_db_success(patch.branch)
         else:
             sys.exit(f"Patches order does not match commits order")
 
