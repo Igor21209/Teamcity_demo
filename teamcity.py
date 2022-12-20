@@ -110,10 +110,11 @@ exit;"""
                 sas = data.get('sas')
                 if sql:
                     for q in sql:
-                        #query = self.get_commit_version(q, patch.commit)
-                        #self.runSqlQuery(query)
-                        query = self.get_commit_version(q, patch.commit) if is_single_patch else q
-                        self.runSqlQuery(query)
+                        if is_single_patch:
+                            query = self.get_commit_version(q, patch.commit)
+                            self.runSqlQuery(query)
+                        else:
+                            self.runSqlQuery(q)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
