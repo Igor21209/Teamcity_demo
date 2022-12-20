@@ -30,18 +30,18 @@ class Teamcity:
         self.oracle_user = oracle_user
         self.oracle_port = oracle_port
 
-    def runSqlQuery(self, sqlCommand, sqlFile=None):
+    def prepare_sql_file(self, sqlCommand, sqlFile=None):
         if sqlCommand:
             with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                 fp.write(sqlCommand)
                 fp.flush()
                 sql = bytes(f"@{fp.name}", 'UTF-8')
-                return self.sqlplus_session(sql)
+                return self.runSqlQuery(sql)
         else:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
-            return self.sqlplus_session(sql)
+            return self.runSqlQuery(sql)
 
-    def sqlplus_session(self, sql_command):
+    def runSqlQuery(self, sql_command):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
                         stdin=PIPE, stdout=PIPE,
@@ -60,10 +60,10 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
-    def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
-        sp = set(list_of_installed_pathes_from_db)
-        pathes_for_install = [p for p in pathes_for_install if p in sp]
-        return pathes_for_install
+    def check_patches(self, patches_for_install, list_of_installed_patches_from_db):
+        patches_set = set(list_of_installed_patches_from_db)
+        patches_for_install = [p for p in patches_for_install if p in patches_set]
+        return patches_for_install
 
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
@@ -83,9 +83,9 @@ WHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)
 VALUES('{patch}', current_timestamp, 'SUCCESS')
 WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
-        self.runSqlQuery(add_to_install_patches)
+        self.prepare_sql_file(add_to_install_patches)
 
-    def execute_files(self, patches_from_deploy_order):
+    def install_release(self, patches_from_deploy_order):
         patches = patches_from_deploy_order.get('patch')
         patches_for_install = self.get_patches_for_install(patches)
         if len(patches_for_install) == 0:
@@ -93,28 +93,28 @@ exit;"""
         patches_for_install_order = self.check_patches(patches, patches_for_install)
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         if is_single_patch:
-            list_of_commit_objects = self.git(patches_for_install)
-            check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+            list_of_commit_objects = self.git_recive_commits(patches_for_install)
+            check_order_result = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
             list_of_commit_objects = []
             list_of_commit_objects.append(Commit(None, None, patches_for_install[0]))
-            check = False
-        if not check:
+            check_order_result = False
+        if not check_order_result:
             for patch in list_of_commit_objects:
-                pars = f'Patches/{patch.branch}/deploy.yml'
-                data = self.yaml_parser(pars)
-                sql = data.get('sql')
-                sas = data.get('sas')
-                if sql:
-                    for q in sql:
+                patch_deploy = f'Patches/{patch.branch}/deploy.yml'
+                install_order = self.yaml_parser(patch_deploy)
+                sql_list = install_order.get('sql')
+                sas_list = install_order.get('sas')
+                if sql_list:
+                    for sql in sql_list:
                         if is_single_patch:
-                            query = self.get_commit_version(q, patch.commit)
-                            self.runSqlQuery(query)
+                            query = self.get_commit_version(sql, patch.commit)
+                            self.prepare_sql_file(query)
                         else:
-                            self.runSqlQuery(None, q)
-                if sas:
-                    for s in sas:
-                        self.ssh_copy(s, self.target_dir)
+                            self.prepare_sql_file(None, q)
+                if sas_list:
+                    for sas in sas_list:
+                        self.ssh_copy(sas, self.target_dir)
                 self.log_patch_db_success(patch.branch)
         else:
             sys.exit(f"Patches order does not match commits order")
@@ -159,7 +159,7 @@ exit;"""
         sql_command = sql_exec.communicate()[0].decode('UTF-8')
         return sql_command
 
-    def git(self, patches):
+    def git_recive_commits(self, patches):
         commit_list = []
         for patch_name in patches:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
@@ -177,16 +177,16 @@ exit;"""
 
     def get_patches_for_install(self, patches):
         patches_for_install = []
-        query_1 = """whenever sqlerror exit sql.sqlcode
+        query_create_type = """whenever sqlerror exit sql.sqlcode
 CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
 /
 exit;"""
-        self.runSqlQuery(query_1)
+        self.prepare_sql_file(query_create_type)
         deploy_order = ''
         for patch in patches:
             deploy_order += 'all_patches_list.EXTEND;\n'
             deploy_order += f"all_patches_list(all_patches_list.LAST) := '{patch}';\n"
-        query_2 = f"""SET SERVEROUTPUT ON
+        query_uninstalled_patches = f"""SET SERVEROUTPUT ON
 whenever sqlerror exit sql.sqlcode
 DECLARE
   all_patches_list arr_patch_type := arr_patch_type();
@@ -205,12 +205,12 @@ BEGIN
 END;
 /
 exit;"""
-        test = self.runSqlQuery(query_2)
-        all_patches = re.search('START_RES\n(.+)\nFINISH_RES', test[0].decode('UTF-8'), re.S)
+        patches_to_install = self.prepare_sql_file(query_uninstalled_patches)
+        all_patches = re.search('START_RES\n(.+)\nFINISH_RES', patches_to_install[0].decode('UTF-8'), re.S)
         if all_patches:
             patches_for_install = all_patches.group(1).split('\n')
         return patches_for_install
 
     def start(self):
         data = self.yaml_parser(self.path_to_yaml)
-        self.execute_files(data)
+        self.install_release(data)
