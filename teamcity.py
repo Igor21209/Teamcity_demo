@@ -186,9 +186,7 @@ exit;"""
         for patch_name in patches:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
-            print(commits.split('\n'))
             list_of_commits = re.findall('(.+)\n', commits)
-            print(list_of_commits)
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
@@ -210,9 +208,9 @@ exit;"""
         query_2 = f"""SET SERVEROUTPUT ON
 whenever sqlerror exit sql.sqlcode
 DECLARE
-all_patches_list arr_patch_type := arr_patch_type{deploy_order};
-uninstalled_patches arr_patch_type := arr_patch_type();
-installed_patches arr_patch_type := arr_patch_type();
+  all_patches_list arr_patch_type := arr_patch_type{deploy_order};
+  uninstalled_patches arr_patch_type := arr_patch_type();
+  installed_patches arr_patch_type := arr_patch_type();
 BEGIN
   SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
   WHERE PATCH_NAME IN (select * from table(all_patches_list));
