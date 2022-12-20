@@ -106,7 +106,7 @@ exit;"""
             list_of_patches = [commit.branch for commit in list_of_commit_objects]
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
-            list_of_commit_objects = patches_for_install_order
+            list_of_patches = patches_for_install_order
             check = False
         if not check:
             for patch in list_of_patches:
