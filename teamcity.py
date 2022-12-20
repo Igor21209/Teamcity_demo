@@ -84,8 +84,8 @@ class Teamcity:
     '''
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
-        commits_list = [commit.commit for commit in commits_array]
-        if not len(commits_list) == len(branch_array):
+        commits_list = [commit.branch for commit in commits_array]
+        if not commits_list == branch_array:
             result_compare_order = True
         return result_compare_order
 
@@ -124,7 +124,7 @@ exit;"""
                             self.runSqlQuery(query)
                     else:
                         for q in sql:
-                            self.runSqlQuery(query)
+                            self.runSqlQuery(q)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
