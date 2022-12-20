@@ -36,24 +36,17 @@ class Teamcity:
                 fp.write(sqlCommand)
                 fp.flush()
                 sql = bytes(f"@{fp.name}", 'UTF-8')
-                session = Popen([f'{self.path_to_sqlplus}', '-S',
-                                 f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
-                                stdin=PIPE, stdout=PIPE,
-                                stderr=PIPE)
-                session.stdin.write(sql)
-                if session.communicate():
-                    unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
-                    if session.returncode != 0:
-                        sys.exit(f'Error while executing sql code in file {sqlCommand}')
-                    if unknown_command:
-                        sys.exit(f'Error while executing sql code in file {sqlCommand}')
-                return session.communicate()
+                return self.sqlplus_session(sql)
         else:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
+            return self.sqlplus_session(sql)
+
+    def sqlplus_session(self, sql_command):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
-                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
+                        stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
-        session.stdin.write(sql)
+        session.stdin.write(sql_command)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
@@ -99,9 +92,14 @@ exit;"""
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches, patches_for_install)
-        list_of_commit_objects = self.git(patches_for_install)
-        check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
+        if is_single_patch:
+            list_of_commit_objects = self.git(patches_for_install)
+            check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        else:
+            list_of_commit_objects = []
+            list_of_commit_objects.append(Commit(None, None, patches_for_install[0]))
+            check = False
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
@@ -114,7 +112,7 @@ exit;"""
                             query = self.get_commit_version(q, patch.commit)
                             self.runSqlQuery(query)
                         else:
-                            self.runSqlQuery(q)
+                            self.runSqlQuery(None, q)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
@@ -185,14 +183,19 @@ CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
 /
 exit;"""
         self.runSqlQuery(query_1)
-        deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
+        #deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
+        deploy_order = ''
+        for patch in patches:
+            deploy_order += 'all_patches_list.EXTEND;\n'
+            deploy_order += f"all_patches_list(all_patches_list.LAST) := '{patch}';\n"
         query_2 = f"""SET SERVEROUTPUT ON
 whenever sqlerror exit sql.sqlcode
 DECLARE
-  all_patches_list arr_patch_type := arr_patch_type{deploy_order};
+  all_patches_list arr_patch_type := arr_patch_type();
   uninstalled_patches arr_patch_type := arr_patch_type();
   installed_patches arr_patch_type := arr_patch_type();
 BEGIN
+  {deploy_order}
   SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
   WHERE PATCH_NAME IN (select * from table(all_patches_list));
   uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
