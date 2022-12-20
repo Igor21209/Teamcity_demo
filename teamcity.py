@@ -105,7 +105,8 @@ exit;"""
         if not is_single_patch:
             list_of_commit_objects = self.git(patches_for_install)
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        else check = False
+        else: 
+            check = False
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
