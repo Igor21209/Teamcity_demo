@@ -114,7 +114,7 @@ exit;"""
                             query = self.get_commit_version(q, patch.commit)
                             self.runSqlQuery(query)
                         else:
-                            self.runSqlQuery(q)
+                            self.runSqlQuery(None, q)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
