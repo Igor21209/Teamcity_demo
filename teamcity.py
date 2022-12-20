@@ -75,8 +75,6 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
         commits_list = [commit.branch for commit in commits_array]
-        print(commits_list)
-        print(branch_array)
         if not commits_list == branch_array:
             result_compare_order = True
         return result_compare_order
@@ -104,10 +102,10 @@ exit;"""
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         print(is_single_patch)
         if is_single_patch:
-            print('HELLO')
             list_of_commit_objects = self.git(patches_for_install)
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        else: 
+        else:
+            list_of_commit_objects = patches_for_install_order
             check = False
         if not check:
             for patch in list_of_commit_objects:
