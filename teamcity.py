@@ -109,7 +109,6 @@ exit;"""
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches, patches_for_install)
-#        if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         if not check:
@@ -213,18 +212,23 @@ all_patches_list arr_patch_type := arr_patch_type{deploy_order};
 uninstalled_patches arr_patch_type := arr_patch_type();
 installed_patches arr_patch_type := arr_patch_type();
 BEGIN
-SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
-WHERE PATCH_NAME IN (select * from table(all_patches_list));
-uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
-FOR i IN 1..uninstalled_patches.COUNT LOOP
-DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));
-END LOOP;
+  SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
+  WHERE PATCH_NAME IN (select * from table(all_patches_list));
+  uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
+  DBMS_OUTPUT.PUT_LINE('START_RES');
+  FOR i IN 1..uninstalled_patches.COUNT LOOP
+    DBMS_OUTPUT.PUT_LINE(uninstalled_patches(i));
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('FINISH_RES');
 END;
 /
 exit;"""
         test = self.runSqlQuery(query_2)
-        patches_for_install = re.findall('(.+)\n', test[0].decode('UTF-8'))
-        patches_for_install.pop(-1)
+        all_patches = re.search('START_RES(.+)FINISH_RES', test[0].decode('UTF-8'))
+        patches_for_install = re.findall('(.+)\n', patches_for_install)
+#        patches_for_install.pop(-1)
+        print(patches_for_install)
+        print(patches_for_install)
         return patches_for_install
 
     def start(self):
