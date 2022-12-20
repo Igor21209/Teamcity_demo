@@ -75,6 +75,8 @@ class Teamcity:
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
         commits_list = [commit.branch for commit in commits_array]
+        print(commits_list)
+        print(branch_array)
         if not commits_list == branch_array:
             result_compare_order = True
         return result_compare_order
