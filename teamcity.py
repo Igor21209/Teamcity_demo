@@ -124,7 +124,7 @@ exit;"""
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
-                self.log_patch_db_success(patch.branch)
+                self.log_patch_db_success(patch)
         else:
             sys.exit(f"Patches order does not match commits order")
 
