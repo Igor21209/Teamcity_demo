@@ -205,7 +205,8 @@ END;
 exit;"""
         test = self.runSqlQuery(query_2)
         all_patches = re.search('START_RES\n(.+)\nFINISH_RES', test[0].decode('UTF-8'), re.S)
-        patches_for_install = all_patches.group(1).split('\n')
+        if all_patches:
+            patches_for_install = all_patches.group(1).split('\n')
         return patches_for_install
 
     def start(self):
