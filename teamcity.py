@@ -224,12 +224,8 @@ END;
 /
 exit;"""
         test = self.runSqlQuery(query_2)
-        all_patches = re.search('START_RES\n(.+)\nFINISH_RES', test[0].decode('UTF-8'), re.M|re.I|re.S)
-        print(all_patches.group(1))
-        #patches_for_install = re.findall('(.+)\n', all_patches.group(1))
+        all_patches = re.search('START_RES\n(.+)\nFINISH_RES', test[0].decode('UTF-8'), re.S)
         patches_for_install = all_patches.group(1).split('\n')
-        #patches_for_install = re.findall('(.+)\n-(SQL procedure successfully completed.)', test[0].decode('UTF-8'))
-#        patches_for_install.pop(-1)
         print(patches_for_install)
         return patches_for_install
 
