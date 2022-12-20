@@ -50,10 +50,28 @@ class Teamcity:
                 return session.communicate()
         else:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
+            return self.sqlplus_session(sql)
+
+'''            
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
         session.stdin.write(sql)
+        if session.communicate():
+            unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
+            if session.returncode != 0:
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+            if unknown_command:
+                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+        return session.communicate()
+'''
+
+    def sqlplus_session(self, sql_command):
+        session = Popen([f'{self.path_to_sqlplus}', '-S',
+                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
+                        stdin=PIPE, stdout=PIPE,
+                        stderr=PIPE)
+        session.stdin.write(sql_command)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
@@ -98,7 +116,7 @@ exit;"""
         patches_for_install = self.get_patches_for_install(patches)
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
-        patches_for_install_order = self.check_patches(patches, patches_for_install) #вернёт патчи из бд для установки в верном порядке
+        patches_for_install_order = self.check_patches(patches, patches_for_install)
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         if is_single_patch:
             list_of_commit_objects = self.git(patches_for_install)
@@ -194,7 +212,7 @@ exit;"""
         deploy_order = ''
         for patch in patches:
             deploy_order += 'all_patches_list.EXTEND;\n'
-            deploy_order += f"all_patches_list(all_patches_list.LAST) := 'Jira_{i}';\n"
+            deploy_order += f"all_patches_list(all_patches_list.LAST) := '{patch}';\n"
         query_2 = f"""SET SERVEROUTPUT ON
 whenever sqlerror exit sql.sqlcode
 DECLARE
