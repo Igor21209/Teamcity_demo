@@ -186,7 +186,9 @@ exit;"""
         for patch_name in patches:
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
+            print(commits.split('\n'))
             list_of_commits = re.findall('(.+)\n', commits)
+            print(list_of_commits)
             for commit in list_of_commits:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
@@ -226,7 +228,6 @@ exit;"""
         test = self.runSqlQuery(query_2)
         all_patches = re.search('START_RES\n(.+)\nFINISH_RES', test[0].decode('UTF-8'), re.S)
         patches_for_install = all_patches.group(1).split('\n')
-        print(patches_for_install)
         return patches_for_install
 
     def start(self):
