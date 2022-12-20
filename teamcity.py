@@ -220,7 +220,7 @@ DECLARE
   uninstalled_patches arr_patch_type := arr_patch_type();
   installed_patches arr_patch_type := arr_patch_type();
 BEGIN
-  {deploy_order}
+{deploy_order}
   SELECT PATCH_NAME BULK COLLECT INTO installed_patches FROM PATCH_STATUS
   WHERE PATCH_NAME IN (select * from table(all_patches_list));
   uninstalled_patches := all_patches_list MULTISET EXCEPT installed_patches;
