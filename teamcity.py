@@ -100,10 +100,12 @@ exit;"""
         patches_for_install = self.get_patches_for_install(patches)
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
-        patches_for_install_order = self.check_patches(patches, patches_for_install)
-        list_of_commit_objects = self.git(patches_for_install)
-        check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        patches_for_install_order = self.check_patches(patches, patches_for_install) #вернёт патчи из бд для установки в верном порядке
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
+        if not is_single_patch:
+            list_of_commit_objects = self.git(patches_for_install)
+            check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        else check = False
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
