@@ -102,7 +102,6 @@ exit;"""
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         if is_single_patch:
             list_of_commit_objects = self.git(patches_for_install)
-            #list_of_patches = [commit.branch for commit in list_of_commit_objects]
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
             list_of_commit_objects = []
@@ -120,7 +119,7 @@ exit;"""
                             query = self.get_commit_version(q, patch.commit)
                             self.runSqlQuery(query)
                         else:
-                            self.runSqlQuery(None, q)
+                            self.runSqlQuery(q)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
