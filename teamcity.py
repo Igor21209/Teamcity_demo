@@ -103,11 +103,12 @@ exit;"""
         self.runSqlQuery(add_to_install_patches)
 
 
-    def execute_files(self, patches):
-        patches_for_install = self.get_patches_for_install(patches.get('patch'))
+    def execute_files(self, patches_from_deploy_order):
+        patches = patches_from_deploy_order.get('patch')
+        patches_for_install = self.get_patches_for_install(patches)
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
-        patches_for_install_order = self.check_patches(patches_1, patches_for_install)
+        patches_for_install_order = self.check_patches(patches, patches_for_install)
 #        if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
