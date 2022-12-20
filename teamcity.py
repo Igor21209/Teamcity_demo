@@ -103,13 +103,14 @@ exit;"""
         print(is_single_patch)
         if is_single_patch:
             list_of_commit_objects = self.git(patches_for_install)
+            list_of_patches = [commit.branch for commit in list_of_commit_objects]
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
             list_of_commit_objects = patches_for_install_order
             check = False
         if not check:
-            for patch in list_of_commit_objects:
-                pars = f'Patches/{patch.branch}/deploy.yml'
+            for patch in list_of_patches:
+                pars = f'Patches/{patch}/deploy.yml'
                 data = self.yaml_parser(pars)
                 sql = data.get('sql')
                 sas = data.get('sas')
