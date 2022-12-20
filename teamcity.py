@@ -36,35 +36,10 @@ class Teamcity:
                 fp.write(sqlCommand)
                 fp.flush()
                 sql = bytes(f"@{fp.name}", 'UTF-8')
-                session = Popen([f'{self.path_to_sqlplus}', '-S',
-                                 f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
-                                stdin=PIPE, stdout=PIPE,
-                                stderr=PIPE)
-                session.stdin.write(sql)
-                if session.communicate():
-                    unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
-                    if session.returncode != 0:
-                        sys.exit(f'Error while executing sql code in file {sqlCommand}')
-                    if unknown_command:
-                        sys.exit(f'Error while executing sql code in file {sqlCommand}')
-                return session.communicate()
+                return self.sqlplus_session(sql)
         else:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
             return self.sqlplus_session(sql)
-
-
-#        session = Popen([f'{self.path_to_sqlplus}', '-S',
-#                         f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
-#                        stderr=PIPE)
-#        session.stdin.write(sql)
-#        if session.communicate():
-#            unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
-#            if session.returncode != 0:
-#                sys.exit(f'Error while executing sql code in file {sqlCommand}')
-#            if unknown_command:
-#                sys.exit(f'Error while executing sql code in file {sqlCommand}')
-#        return session.communicate()
-
 
     def sqlplus_session(self, sql_command):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
