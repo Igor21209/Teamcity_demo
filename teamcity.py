@@ -85,7 +85,6 @@ WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
         self.runSqlQuery(add_to_install_patches)
 
-
     def execute_files(self, patches_from_deploy_order):
         patches = patches_from_deploy_order.get('patch')
         patches_for_install = self.get_patches_for_install(patches)
@@ -183,7 +182,6 @@ CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
 /
 exit;"""
         self.runSqlQuery(query_1)
-        #deploy_order = str(patches).replace('[', '(').replace(']', ')').strip()
         deploy_order = ''
         for patch in patches:
             deploy_order += 'all_patches_list.EXTEND;\n'
