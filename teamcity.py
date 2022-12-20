@@ -67,21 +67,11 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
-    '''
-    Метод предназначен для восстановления порядка установки патчей в соответствии с порядком, указанным в файле deploy_order.yml.
-    Он необходим, т.к. бд возвращает случайный порядок патчей для установки.
-    set(pathes_for_install) - set(list_of_installed_pathes_from_db) не получится использовать, т.к. порядок в таком случае не сохраняется.
-    '''
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
         sp = set(list_of_installed_pathes_from_db)
         pathes_for_install = [p for p in pathes_for_install if p in sp]
         return pathes_for_install
 
-    '''
-    Метод необходим для проверки соответствия количества патчей, предполагаемых установке, и правильность порядка их следования.
-    Собранный список объектов класса Commit в методе git сверяется со списком патчей для устнавки, собранным в соответствии с 
-    порядком, указанным в файле deploy_order.yml
-    '''
     def check_incorrect_order(self, commits_array, branch_array):
         result_compare_order = False
         commits_list = [commit.branch for commit in commits_array]
@@ -111,6 +101,7 @@ exit;"""
         patches_for_install_order = self.check_patches(patches, patches_for_install)
         list_of_commit_objects = self.git(patches_for_install)
         check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         if not check:
             for patch in list_of_commit_objects:
                 pars = f'Patches/{patch.branch}/deploy.yml'
@@ -118,13 +109,11 @@ exit;"""
                 sql = data.get('sql')
                 sas = data.get('sas')
                 if sql:
-                    if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
-                        for q in sql:
-                            query = self.get_commit_version(q, patch.commit)
-                            self.runSqlQuery(query)
-                    else:
-                        for q in sql:
-                            self.runSqlQuery(q)
+                    for q in sql:
+                        #query = self.get_commit_version(q, patch.commit)
+                        #self.runSqlQuery(query)
+                        query = self.get_commit_version(q, patch.commit) if is_single_patch else q
+                        self.runSqlQuery(query)
                 if sas:
                     for s in sas:
                         self.ssh_copy(s, self.target_dir)
@@ -172,15 +161,6 @@ exit;"""
         sql_command = sql_exec.communicate()[0].decode('UTF-8')
         return sql_command
 
-    '''
-    Метод необходим для поиска версии sql скрипта из ветки для которой был выполнен merge в ветку release
-    1. Находим все merge в ветку release командой git rev-list --merges HEAD ^Jira_X
-    2. Через команду git show <хэш коммита> находим нужную версию коммита
-    Результатом работы метода является отсортированный по дате список объектов класса Commit, которые содержат в себе:
-    - нужный хэш коммита, по которому потом будут применяться sql скрипты (метод get_commit_version)
-    - дата этого коммита
-    - название ветки с патчом
-    '''
     def git(self, patches):
         commit_list = []
         for patch_name in patches:
