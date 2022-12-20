@@ -103,7 +103,7 @@ exit;"""
         patches_for_install_order = self.check_patches(patches, patches_for_install) #вернёт патчи из бд для установки в верном порядке
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         print(is_single_patch)
-        if not is_single_patch:
+        if is_single_patch:
             print('HELLO')
             list_of_commit_objects = self.git(patches_for_install)
             check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
