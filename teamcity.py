@@ -181,9 +181,9 @@ exit;"""
                     branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
                     if branch_name == patch_name:
                         commit_list.append(Commit(commit, date, branch_name))
-            commit_list.sort(reverse=False, key=lambda comm: comm.date)
-        else:
-            sys.exit(f'There are several commits which is not merges in branch {patch_name}')
+                commit_list.sort(reverse=False, key=lambda comm: comm.date)
+            else:
+                sys.exit(f'There are several commits which is not merges in branch {patch_name}')
         return commit_list
 
     def get_patches_for_install(self, patches):
