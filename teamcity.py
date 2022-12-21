@@ -167,7 +167,7 @@ exit;"""
             list_of_commits = re.findall('(.+)\n', commits)
             all_commits = self.run_shell_command(f'git rev-list --first-parent main..HEAD')
             list_branch_commits = re.findall('(.+)\n', all_commits)
-            all_merges = self.run_shell_command(f'git rev-list --merges main..HEAD')
+            all_merges = self.run_shell_command(f'git rev-list --merges --first-parent main..HEAD')
             merges_list = re.findall('(.+)\n', all_merges)
             if list_of_commits == merges_list:
                 for commit in list_of_commits:
