@@ -18,7 +18,7 @@ class Commit:
 
 
 class Teamcity:
-    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, oracle_user, oracle_port):
+    def __init__(self, user, host, target_dir, path_to_ssh_priv_key, path_to_yaml, path_to_sqlplus, oracle_host, oracle_db, oracle_user, oracle_port, target_branch):
         self.user = user
         self.host = host
         self.target_dir = target_dir
@@ -29,6 +29,7 @@ class Teamcity:
         self.oracle_db = oracle_db
         self.oracle_user = oracle_user
         self.oracle_port = oracle_port
+        self.target_branch = target_branch
 
     def prepare_sql_file(self, sqlCommand, sqlFile=None):
         if sqlCommand:
@@ -165,9 +166,9 @@ exit;"""
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
-            all_commits = self.run_shell_command(f'git rev-list --first-parent main..HEAD')
+            all_commits = self.run_shell_command(f'git rev-list --first-parent {self.target_branch}..HEAD')
             list_branch_commits = re.findall('(.+)\n', all_commits)
-            all_merges = self.run_shell_command(f'git rev-list --merges main..HEAD')
+            all_merges = self.run_shell_command(f'git rev-list --merges --first-parent {self.target_branch}..HEAD')
             merges_list = re.findall('(.+)\n', all_merges)
             if list_of_commits == merges_list:
                 for commit in list_of_commits:
