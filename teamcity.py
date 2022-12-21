@@ -168,9 +168,12 @@ exit;"""
             list_of_commits = re.findall('(.+)\n', commits)
             all_commits = self.run_shell_command(f'git rev-list --first-parent {self.target_branch}..HEAD')
             list_branch_commits = re.findall('(.+)\n', all_commits)
+            print(list_branch_commits)
             all_merges = self.run_shell_command(f'git rev-list --merges --first-parent {self.target_branch}..HEAD')
             merges_list = re.findall('(.+)\n', all_merges)
-            if list_of_commits == merges_list:
+            print(merges_list)
+            print(list_branch_commits == merges_list)
+            if list_branch_commits == merges_list:
                 for commit in list_of_commits:
                     branch = f'git show {commit}'
                     get_branch = self.run_shell_command(branch)
@@ -178,9 +181,9 @@ exit;"""
                     branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
                     if branch_name == patch_name:
                         commit_list.append(Commit(commit, date, branch_name))
-            commit_list.sort(reverse=False, key=lambda comm: comm.date)
-        else:
-            sys.exit(f'There are several commits which is not merges in branch {patch_name}')
+                commit_list.sort(reverse=False, key=lambda comm: comm.date)
+            else:
+                sys.exit(f'There are several commits which is not merges in branch {patch_name}')
         return commit_list
 
     def get_patches_for_install(self, patches):
