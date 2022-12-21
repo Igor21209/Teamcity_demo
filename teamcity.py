@@ -165,14 +165,19 @@ exit;"""
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
-            for commit in list_of_commits:
-                branch = f'git show {commit}'
-                get_branch = self.run_shell_command(branch)
-                date = re.search('Date: (.+)', get_branch).group(1).strip()
-                branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
-                if branch_name == patch_name:
-                    commit_list.append(Commit(commit, date, branch_name))
-        commit_list.sort(reverse=False, key=lambda comm: comm.date)
+            all_branch_comits = self.run_shell_command(f'git rev-list HEAD ^{patch_name}')
+            list_branch_commits = re.findall('(.+)\n', all_branch_comits)
+            if list_of_commits == list_branch_commits:
+                for commit in list_of_commits:
+                    branch = f'git show {commit}'
+                    get_branch = self.run_shell_command(branch)
+                    date = re.search('Date: (.+)', get_branch).group(1).strip()
+                    branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
+                    if branch_name == patch_name:
+                        commit_list.append(Commit(commit, date, branch_name))
+            commit_list.sort(reverse=False, key=lambda comm: comm.date)
+        else:
+            sys.exit(f'There are several commits which is not merges in branch {patch_name}')
         return commit_list
 
     def get_patches_for_install(self, patches):
