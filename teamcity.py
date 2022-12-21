@@ -165,9 +165,11 @@ exit;"""
             rev_list = f'git rev-list --merges HEAD ^{patch_name}'
             commits = self.run_shell_command(rev_list)
             list_of_commits = re.findall('(.+)\n', commits)
-            all_branch_comits = self.run_shell_command(f'git rev-list HEAD ^{patch_name}')
-            list_branch_commits = re.findall('(.+)\n', all_branch_comits)
-            if list_of_commits == list_branch_commits:
+            all_commits = self.run_shell_command(f'git rev-list --first-parent main..HEAD')
+            list_branch_commits = re.findall('(.+)\n', all_commits)
+            all_merges = self.run_shell_command(f'git rev-list --merges main..HEAD')
+            merges_list = re.findall('(.+)\n', all_merges)
+            if list_of_commits == merges_list:
                 for commit in list_of_commits:
                     branch = f'git show {commit}'
                     get_branch = self.run_shell_command(branch)
