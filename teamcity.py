@@ -180,7 +180,7 @@ exit;"""
             #list_branch_commits = re.findall('(.+)\n', all_commits)
         all_merges = self.run_shell_command(f'git rev-list --merges --first-parent {self.target_branch}..HEAD')
         merges_list = re.findall('(.+)\n', all_merges)
-        if list_branch_commits == merges_list:
+        if all_commits == all_merges:
             for commit in merges_list:
                 branch = f'git show {commit}'
                 get_branch = self.run_shell_command(branch)
