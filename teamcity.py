@@ -31,7 +31,7 @@ class Teamcity:
         self.oracle_port = oracle_port
         self.target_branch = target_branch
 
-    #TODO: Переименовать функцию в runSqlQuery
+
     def runSqlQuery(self, sqlCommand, sqlFile=None):
         if sqlCommand:
             with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
@@ -43,7 +43,6 @@ class Teamcity:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
             return self.executeSqlFile(sql)
 
-    #TODO: Переименовать функцию в executeSqlFile
     def executeSqlFile(self, sql_command):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
@@ -96,7 +95,6 @@ exit;"""
         patches_for_install_order = self.check_patches(patches, patches_for_install)
         is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
         if is_single_patch:
-            #list_of_commit_objects = self.git_recive_commits(patches_for_install)
             list_of_commit_objects = self.git_recive_commits()
             check_order_result = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
@@ -163,21 +161,9 @@ exit;"""
         sql_command = sql_exec.communicate()[0].decode('UTF-8')
         return sql_command
 
-    #TODO: исправить опечатку в слове receive 
-    #TODO: Заменить запрос 
-    #    f'git rev-list --merges HEAD ^{patch_name}' 
-    #на  f'git rev-list --merges --first-parent {self.target_branch}..HEAD'
-    #убрать цикл по for patch_name in patches, так как запрос выше должен вернуть все необходимые коммиты
-    #проверка branch_name == patch_name   больше не треубется
-    #Почему нельзя сравнить all_commits с all_merges и текст ошибки должна быть ветка target_branch
     def git_recive_commits(self):
         commit_list = []
-        #for patch_name in patches:
-            #rev_list = f'git rev-list --merges HEAD ^{patch_name}'
-            #commits = self.run_shell_command(rev_list)
-            #list_of_commits = re.findall('(.+)\n', commits)
         all_commits = self.run_shell_command(f'git rev-list --first-parent {self.target_branch}..HEAD')
-            #list_branch_commits = re.findall('(.+)\n', all_commits)
         all_merges = self.run_shell_command(f'git rev-list --merges --first-parent {self.target_branch}..HEAD')
         merges_list = re.findall('(.+)\n', all_merges)
         if all_commits == all_merges:
@@ -186,7 +172,6 @@ exit;"""
                 get_branch = self.run_shell_command(branch)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
-                #if branch_name == patch_name:
                 commit_list.append(Commit(commit, date, branch_name))
             commit_list.sort(reverse=False, key=lambda comm: comm.date)
         else:
