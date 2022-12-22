@@ -32,19 +32,19 @@ class Teamcity:
         self.target_branch = target_branch
 
     #TODO: Переименовать функцию в runSqlQuery
-    def prepare_sql_file(self, sqlCommand, sqlFile=None):
+    def runSqlQuery(self, sqlCommand, sqlFile=None):
         if sqlCommand:
             with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
                 fp.write(sqlCommand)
                 fp.flush()
                 sql = bytes(f"@{fp.name}", 'UTF-8')
-                return self.runSqlQuery(sql)
+                return self.executeSqlFile(sql)
         else:
             sql = bytes(f"@{sqlFile}", 'UTF-8')
-            return self.runSqlQuery(sql)
+            return self.executeSqlFile(sql)
 
     #TODO: Переименовать функцию в executeSqlFile
-    def runSqlQuery(self, sql_command):
+    def executeSqlFile(self, sql_command):
         session = Popen([f'{self.path_to_sqlplus}', '-S',
                          f'{self.oracle_user}/{os.environ.get("PASS")}@//{self.oracle_host}:{self.oracle_port}/{self.oracle_db}'],
                         stdin=PIPE, stdout=PIPE,
@@ -86,7 +86,7 @@ WHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)
 VALUES('{patch}', current_timestamp, 'SUCCESS')
 WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
-        self.prepare_sql_file(add_to_install_patches)
+        self.runSqlQuery(add_to_install_patches)
 
     def install_release(self, patches_from_deploy_order):
         patches = patches_from_deploy_order.get('patch')
@@ -113,9 +113,9 @@ exit;"""
                     for sql in sql_list:
                         if is_single_patch:
                             query = self.get_commit_version(sql, patch.commit)
-                            self.prepare_sql_file(query)
+                            self.runSqlQuery(query)
                         else:
-                            self.prepare_sql_file(None, sql)
+                            self.runSqlQuery(None, sql)
                 if sas_list:
                     for sas in sas_list:
                         self.ssh_copy(sas, self.target_dir)
@@ -186,8 +186,8 @@ exit;"""
                 get_branch = self.run_shell_command(branch)
                 date = re.search('Date: (.+)', get_branch).group(1).strip()
                 branch_name = re.search('\{\%(.+)\%\}', get_branch).group(1)
-                if branch_name == patch_name:
-                    commit_list.append(Commit(commit, date, branch_name))
+                #if branch_name == patch_name:
+                commit_list.append(Commit(commit, date, branch_name))
             commit_list.sort(reverse=False, key=lambda comm: comm.date)
         else:
             sys.exit(f'There are several commits which is not merges in branch {self.get_current_branch()}')
@@ -199,7 +199,7 @@ exit;"""
 CREATE OR REPLACE TYPE arr_patch_type IS TABLE OF VARCHAR2(32);
 /
 exit;"""
-        self.prepare_sql_file(query_create_type)
+        self.runSqlQuery(query_create_type)
         deploy_order = ''
         for patch in patches:
             deploy_order += 'all_patches_list.EXTEND;\n'
@@ -223,7 +223,7 @@ BEGIN
 END;
 /
 exit;"""
-        patches_to_install = self.prepare_sql_file(query_uninstalled_patches)
+        patches_to_install = self.runSqlQuery(query_uninstalled_patches)
         all_patches = re.search('START_RES\n(.+)\nFINISH_RES', patches_to_install[0].decode('UTF-8'), re.S)
         if all_patches:
             patches_for_install = all_patches.group(1).split('\n')
