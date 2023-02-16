@@ -92,7 +92,7 @@ exit;"""
     def rollback(self, patch, flag, commit=None):
         patch_rollback = f'Patches/{patch}/deploy.yml'
         rollback_skripts = self.yaml_parser(patch_rollback).get('rollback')
-        if flag:
+        if flag == True:
             for skript in rollback_skripts:
                 query = self.get_commit_version(skript, commit)
                 print("HELLO!")
