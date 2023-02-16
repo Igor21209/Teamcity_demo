@@ -94,8 +94,9 @@ exit;"""
         rollback_skripts = self.yaml_parser(patch_rollback).get('rollback')
         if flag:
             for skript in rollback_skripts:
-                #query = self.get_commit_version(skript, commit)
-                res = self.runSqlQuery(skript)
+                query = self.get_commit_version(skript, commit)
+                print("HELLO\n", query)
+                res = self.runSqlQuery(query)
                 print(res)
                 if not res:
                     sys.exit(f'Error while executing rollback sql code in file {query}')
