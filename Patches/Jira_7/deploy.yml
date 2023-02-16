@@ -4,3 +4,5 @@ sql:
 sas:
     - ALL/SAS/macros_1.sas
     - ALL/SAS/macros_2.sas
+rollback:
+    - ALL/DDL/rollback.sql
