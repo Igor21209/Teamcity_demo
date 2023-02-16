@@ -1,5 +1,6 @@
 whenever sqlerror exit sql.sqlcode
 begin
-select * FROM ATCH_STATUS;
+delete FROM PATCH_STATUS
+where PATCH_NAME = 'Jira_8';
 end;
 exit;
