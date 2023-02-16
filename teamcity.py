@@ -89,6 +89,7 @@ WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
         self.runSqlQuery(add_to_install_patches)
 
+<<<<<<< HEAD
     def rollback(self, patch, flag, commit=None):
         patch_rollback = f'Patches/{patch}/deploy.yml'
         rollback_skripts = self.yaml_parser(patch_rollback).get('rollback')
@@ -115,6 +116,19 @@ exit;"""
             list_of_commit_objects = self.git_recive_commits()
             check_order_result = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
         else:
+=======
+    def install_release(self, patches_from_deploy_order):
+        patches = patches_from_deploy_order.get('patch')
+        patches_for_install = self.get_patches_for_install(patches)
+        if len(patches_for_install) == 0:
+            sys.exit(f'Nothing to install')
+        patches_for_install_order = self.check_patches(patches, patches_for_install)
+        is_single_patch = not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0])
+        if is_single_patch:
+            list_of_commit_objects = self.git_recive_commits()
+            check_order_result = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+        else:
+>>>>>>> Jira_8
             list_of_commit_objects = []
             list_of_commit_objects.append(Commit(None, None, patches_for_install[0]))
             check_order_result = False
@@ -128,6 +142,7 @@ exit;"""
                     for sql in sql_list:
                         if is_single_patch:
                             query = self.get_commit_version(sql, patch.commit)
+<<<<<<< HEAD
                             res = self.runSqlQuery(query)
                             if not res:
                                 print(f"Start rollback for patch {patch.branch}")
@@ -137,6 +152,11 @@ exit;"""
                             if not res:
                                 print(f"Start rollback for patch {patch.branch}")
                                 self.rollback(patch.branch, False)
+=======
+                            self.runSqlQuery(query)
+                        else:
+                            self.runSqlQuery(None, sql)
+>>>>>>> Jira_8
                 if sas_list:
                     for sas in sas_list:
                         self.ssh_copy(sas, self.target_dir)

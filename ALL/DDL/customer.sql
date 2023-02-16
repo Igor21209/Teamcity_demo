@@ -3,7 +3,11 @@ declare
    c int;
   v_column_exists number := 0;  
 begin
+<<<<<<< HEAD
    select count(*) into c from ser_tables where table_name = upper('customer');
+=======
+   select count(*) into c from user_tables where table_name = upper('customer');
+>>>>>>> Jira_8
    if c = 0 then
         execute immediate 'CREATE TABLE customer (id INT,  last_name varchar(64),   first_name varchar(64),   middle_name varchar(64),   birth_date DATE, address varchar(128))';
    end if;
