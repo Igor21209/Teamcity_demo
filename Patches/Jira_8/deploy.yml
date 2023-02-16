@@ -1,0 +1,5 @@
+sql:
+    - ALL/DDL/account.sql
+    - Patches/Jira_2/params_insert.sql
+rollback:
+    - ALL/DDL/rollback.sql
