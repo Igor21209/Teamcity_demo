@@ -95,17 +95,12 @@ exit;"""
         if flag:
             for skript in rollback_skripts:
                 query = self.get_commit_version(skript, commit)
-                print("HELLO!")
-                #print(query)
                 res = self.runSqlQuery(query)
-                #print(res)
                 if not res:
                     sys.exit(f'Error while executing rollback sql code in file {query}')
         else:
             for skript in rollback_skripts:
-                print(skript)
                 res = self.runSqlQuery(None, skript)
-                print(res)
                 if not res:
                     sys.exit(f'Error while executing rollback sql code in file {skript}')
 
@@ -135,12 +130,12 @@ exit;"""
                             query = self.get_commit_version(sql, patch.commit)
                             res = self.runSqlQuery(query)
                             if not res:
-                                print(f"Start rollback for {query}")
+                                print(f"Start rollback for patch {patch.branch}")
                                 self.rollback(patch.branch, True, patch.commit)
                         else:
                             res = self.runSqlQuery(None, sql)
                             if not res:
-                                print(f"Start rollback for {patch.branch}")
+                                print(f"Start rollback for patch {patch.branch}")
                                 self.rollback(patch.branch, False)
                 if sas_list:
                     for sas in sas_list:
