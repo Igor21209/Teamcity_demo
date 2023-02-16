@@ -52,9 +52,11 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                return False
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                return False
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def yaml_parser(self, path):
@@ -87,6 +89,21 @@ WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
 exit;"""
         self.runSqlQuery(add_to_install_patches)
 
+    def rollback(self, patch, flag, commit=None):
+        patch_rollback = f'Patches/{patch}/deploy.yml'
+        rollback_skripts = self.yaml_parser(patch_rollback).get('rollback')
+        if flag:
+            for skript in rollback_skripts:
+                query = self.get_commit_version(skript, commit)
+                res = self.runSqlQuery(query)
+                if not res:
+                    sys.exit(f'Error while executing rollback sql code in file {query}')
+        else:
+            for skript in rollback_skripts:
+                res = self.runSqlQuery(None, skript)
+                if not res:
+                    sys.exit(f'Error while executing rollback sql code in file {skript}')
+
     def install_release(self, patches_from_deploy_order):
         patches = patches_from_deploy_order.get('patch')
         patches_for_install = self.get_patches_for_install(patches)
@@ -111,9 +128,15 @@ exit;"""
                     for sql in sql_list:
                         if is_single_patch:
                             query = self.get_commit_version(sql, patch.commit)
-                            self.runSqlQuery(query)
+                            res = self.runSqlQuery(query)
+                            if not res:
+                                print(f"Start rollback for {query}")
+                                self.rollback(patch.branch, True, patch.commit)
                         else:
-                            self.runSqlQuery(None, sql)
+                            res = self.runSqlQuery(None, sql)
+                            if not res:
+                                print(f"Start rollback for {sql}")
+                                self.rollback(patch.branch, False)
                 if sas_list:
                     for sas in sas_list:
                         self.ssh_copy(sas, self.target_dir)
