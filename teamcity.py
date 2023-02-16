@@ -105,6 +105,7 @@ exit;"""
                     sys.exit(f'Error while executing rollback sql code in file {query}')
         else:
             for skript in rollback_skripts:
+                print(skript)
                 res = self.runSqlQuery(None, skript)
                 #print(res)
                 if not res:
