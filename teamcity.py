@@ -95,7 +95,8 @@ exit;"""
         if flag:
             for skript in rollback_skripts:
                 query = self.get_commit_version(skript, commit)
-                print("HELLO\n", query)
+                print("HELLO!")
+                print(query)
                 res = self.runSqlQuery(query)
                 print(res)
                 if not res:
@@ -103,7 +104,7 @@ exit;"""
         else:
             for skript in rollback_skripts:
                 res = self.runSqlQuery(None, skript)
-                print(res)
+                #print(res)
                 if not res:
                     sys.exit(f'Error while executing rollback sql code in file {skript}')
 
