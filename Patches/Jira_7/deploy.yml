@@ -2,7 +2,7 @@ sql:
     - ALL/DDL/customer.sql
     - Patches/Jira_1/params_insert.sql
 sas:
-    - macros_1.sas
-    - macros_2.sas
+    - ALL/SAS/macros_1.sas
+    - ALL/SAS/macros_2.sas
 rollback:
     - ALL/DDL/rollback.sql
