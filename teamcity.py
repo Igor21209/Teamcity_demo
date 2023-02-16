@@ -142,7 +142,7 @@ exit;"""
                         else:
                             res = self.runSqlQuery(None, sql)
                             if not res:
-                                print(f"Start rollback for {sql}")
+                                print(f"Start rollback for {patch.branch}")
                                 self.rollback(patch.branch, False)
                 if sas_list:
                     for sas in sas_list:
