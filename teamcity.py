@@ -143,7 +143,7 @@ exit;"""
                 if sas_list:
                     for sas in sas_list:
                         #self.ssh_copy(sas, self.target_dir)
-                        self.ansible_copy(sas, self.target_dir)
+                        self.ansible_copy(f"./{sas}", self.target_dir)
                 if patch_is_installed:
                     self.log_patch_db_success(patch.branch)
                 patch_is_installed = True
