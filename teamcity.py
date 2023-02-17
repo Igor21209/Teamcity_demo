@@ -160,7 +160,7 @@ exit;"""
     - dest_file   : %s
   tasks:
   - name: Copy file
-  copy: src={{sourse_file}} dest={{dest_file}} mode=777
+    copy: src={{sourse_file}} dest={{dest_file}} mode=777
   """ % (sourse, dest)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
             fp.write(playbook)
