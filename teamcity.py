@@ -145,9 +145,9 @@ exit;"""
                         #self.ssh_copy(sas, self.target_dir)
                         tes = self.run_shell_command("pwd")
                         print("HEY")
-                        print(f"{tes}/{sas}")
+                        print(f"/opt/buildagent/work/7e054e958cbf8c5/{sas}")
                         print("HI")
-                        self.ansible_copy(f"{tes}/{sas}", self.target_dir)
+                        self.ansible_copy(f"/opt/buildagent/work/7e054e958cbf8c5/{sas}", self.target_dir)
                 if patch_is_installed:
                     self.log_patch_db_success(patch.branch)
                 patch_is_installed = True
