@@ -119,6 +119,7 @@ exit;"""
             list_of_commit_objects.append(Commit(None, None, patches_for_install[0]))
             check_order_result = False
         if not check_order_result:
+            patch_is_installed = True
             for patch in list_of_commit_objects:
                 patch_deploy = f'Patches/{patch.branch}/deploy.yml'
                 install_order = self.yaml_parser(patch_deploy)
@@ -131,16 +132,20 @@ exit;"""
                             res = self.runSqlQuery(query)
                             if not res:
                                 print(f"Start rollback for patch {patch.branch}")
+                                patch_is_installed = False
                                 self.rollback(patch.branch, True, patch.commit)
                         else:
                             res = self.runSqlQuery(None, sql)
                             if not res:
                                 print(f"Start rollback for patch {patch.branch}")
+                                patch_is_installed = False
                                 self.rollback(patch.branch, False)
                 if sas_list:
                     for sas in sas_list:
                         self.ssh_copy(sas, self.target_dir)
-                self.log_patch_db_success(patch.branch)
+                if patch_is_installed:
+                    self.log_patch_db_success(patch.branch)
+                patch_is_installed = True
         else:
             sys.exit(f"Patches order does not match commits order")
 
