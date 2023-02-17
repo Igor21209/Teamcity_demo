@@ -144,7 +144,9 @@ exit;"""
                     for sas in sas_list:
                         #self.ssh_copy(sas, self.target_dir)
                         tes = self.run_shell_command("pwd")
+                        print("HEY")
                         print(f"{tes}/{sas}")
+                        print("HI")
                         self.ansible_copy(f"{tes}/{sas}", self.target_dir)
                 if patch_is_installed:
                     self.log_patch_db_success(patch.branch)
