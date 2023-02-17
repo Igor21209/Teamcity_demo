@@ -153,15 +153,15 @@ exit;"""
     def ansible_copy(self, sourse, dest):
         playbook = """---
 - name: copy dir
-    hosts: all
-    become: yes
-    vars:
-      - sourse_file : %s
-      - dest_file   : %s
-    tasks:
-    - name: Copy file
-      copy: src={{sourse_file}} dest={{dest_file}} mode=777
-    """ % (sourse, dest)
+  hosts: all
+  become: yes
+  vars:
+    - sourse_file : %s
+    - dest_file   : %s
+  tasks:
+  - name: Copy file
+  copy: src={{sourse_file}} dest={{dest_file}} mode=777
+  """ % (sourse, dest)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
             fp.write(playbook)
             fp.flush()
