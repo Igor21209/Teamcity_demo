@@ -142,12 +142,37 @@ exit;"""
                                 self.rollback(patch.branch, False)
                 if sas_list:
                     for sas in sas_list:
-                        self.ssh_copy(sas, self.target_dir)
+                        #self.ssh_copy(sas, self.target_dir)
+                        path = self.run_shell_command("pwd")
+                        self.ansible_copy(f"{path.strip()}/{sas}", self.target_dir)
                 if patch_is_installed:
                     self.log_patch_db_success(patch.branch)
                 patch_is_installed = True
         else:
             sys.exit(f"Patches order does not match commits order")
+
+    def ansible_copy(self, sourse, dest):
+        playbook = """---
+- name: copy dir
+  hosts: all
+  become: yes
+  vars:
+    - sourse_file : %s
+    - dest_file   : %s
+  tasks:
+  - name: Copy file
+    copy: src={{sourse_file}} dest={{dest_file}} mode=777
+    """ % (sourse, dest)
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
+            fp.write(playbook)
+            fp.flush()
+            skript = f"ansible-playbook {fp.name}"
+            res = self.run_shell_command(skript)
+            check = re.search('failed=(\S)', res).group(1)
+            if int(check) != 0:
+                print(res)
+                sys.exit(f'Error while copying {sourse}')
+            return res
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
