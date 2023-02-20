@@ -134,14 +134,14 @@ exit;"""
                                 print(f"Start rollback for patch {patch.branch}")
                                 patch_is_installed = False
                                 self.rollback(patch.branch, True, patch.commit)
-                                sys.exit(f'Release installation was stopped due to an error in {patch.branch}')
+                                sys.exit(f'Release installation was stopped due to an error in {patch.branch} in file {sql}')
                         else:
                             res = self.runSqlQuery(None, sql)
                             if not res:
                                 print(f"Start rollback for patch {patch.branch}")
                                 patch_is_installed = False
                                 self.rollback(patch.branch, False)
-                                sys.exit(f'Release installation was stopped due to an error in {patch.branch}')
+                                sys.exit(f'Release installation was stopped due to an error in {patch.branch} in file {sql}')
                 if sas_list:
                     for sas in sas_list:
                         #self.ssh_copy(sas, self.target_dir)
