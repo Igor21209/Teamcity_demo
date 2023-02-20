@@ -169,7 +169,7 @@ exit;"""
             skript = f"ansible-playbook {fp.name}"
             res = self.run_shell_command(skript)
             check = re.search('failed=(\S)', res).group(1)
-            if check != 0:
+            if int(check) != 0:
                 print(res)
                 sys.exit(f'Error while copying {sourse}')
             return res
