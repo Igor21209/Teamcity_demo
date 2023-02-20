@@ -145,7 +145,7 @@ exit;"""
                         #self.ssh_copy(sas, self.target_dir)
                         tes = self.run_shell_command("pwd")
                         print("HEY")
-                        print(f"/opt/buildagent/work/7e054e958cbf8c5/{sas}")
+                        print(f"{tes}/{sas}")
                         print("HI")
                         self.ansible_copy(f"/opt/buildagent/work/7e054e958cbf8c5/{sas}", self.target_dir)
                 if patch_is_installed:
@@ -166,6 +166,7 @@ exit;"""
   - name: Copy file
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
   """ % (sourse, dest)
+        print(playbook)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
             fp.write(playbook)
             fp.flush()
