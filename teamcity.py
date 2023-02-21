@@ -176,6 +176,19 @@ exit;"""
   - name: Create dirs
     file: path={{dest_file}}%s state=directory
   - name: Copy file
+    copy: src={{sourse_file}} dest={{dest_file}}%s mode=777
+    """ % (sourse, dest, dir_for_create, dir_for_create)
+        playbook2 = """---
+- name: copy dir
+  hosts: all
+  become: yes
+  vars:
+    - sourse_file : %s
+    - dest_file   : %s
+  tasks:
+  - name: Create dirs
+    file: path={{dest_file}}%s state=directory
+  - name: Copy file
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
     """ % (sourse, dest, dir_for_create)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
