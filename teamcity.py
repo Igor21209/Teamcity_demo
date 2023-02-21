@@ -154,6 +154,7 @@ exit;"""
             sys.exit(f"Patches order does not match commits order")
 
     def ansible_copy(self, sourse, dest):
+        flag = False
         dirs = re.split('/', sourse)
         create_dirs = ''
         for i in dirs:
@@ -162,10 +163,9 @@ exit;"""
             create_dirs = create_dirs + i + '/'
         create = re.search('SAS/(.+)', create_dirs)
         if create:
+            flag = True
             dir_for_create = create.group(1)
-            print(dir_for_create)
-        dir_for_create = create.group(1)
-        playbook = """---
+            playbook1 = """---
 - name: copy dir
   hosts: all
   become: yes
@@ -186,13 +186,14 @@ exit;"""
     - sourse_file : %s
     - dest_file   : %s
   tasks:
-  - name: Create dirs
-    file: path={{dest_file}}%s state=directory
   - name: Copy file
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
-    """ % (sourse, dest, dir_for_create)
+    """ % (sourse, dest)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
-            fp.write(playbook)
+            if flag:
+                fp.write(playbook1)
+            else:
+                fp.write(playbook2)
             fp.flush()
             skript = f"ansible-playbook {fp.name}"
             res = self.run_shell_command(skript)
