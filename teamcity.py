@@ -164,6 +164,7 @@ exit;"""
         if create:
             dir_for_create = create.group(1)
             print(dir_for_create)
+        dir_for_create = create.group(1)
         playbook = """---
 - name: copy dir
   hosts: all
