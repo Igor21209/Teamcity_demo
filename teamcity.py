@@ -172,9 +172,11 @@ exit;"""
     - sourse_file : %s
     - dest_file   : %s
   tasks:
+  - name: Create dirs
+    file: path=%s state=directory
   - name: Copy file
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
-    """ % (sourse, dest)
+    """ % (sourse, dest, dir_for_create)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
             fp.write(playbook)
             fp.flush()
