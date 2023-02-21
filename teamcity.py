@@ -154,6 +154,16 @@ exit;"""
             sys.exit(f"Patches order does not match commits order")
 
     def ansible_copy(self, sourse, dest):
+        dirs = re.split('/', sourse)
+        create_dirs = ''
+        for i in dirs:
+            if i == dirs[-1]:
+                break
+            create_dirs = create_dirs + i + '/'
+        create = re.search('SAS/(.+)', create_dirs)
+        if create:
+            dir_for_create = create.group(1)
+            print(dir_for_create)
         playbook = """---
 - name: copy dir
   hosts: all
