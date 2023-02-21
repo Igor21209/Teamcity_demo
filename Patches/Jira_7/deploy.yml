@@ -5,5 +5,6 @@ sas:
     - ALL/SAS/test/test_1/macros_1.sas
     - ALL/SAS/macros_1.sas
     - ALL/SAS/macros_2.sas
+    - ALL/SAS/copy_test/copy
 rollback:
     - ALL/DDL/rollback.sql
