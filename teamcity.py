@@ -174,7 +174,7 @@ exit;"""
     - dest_file   : %s
   tasks:
   - name: Create dirs
-    file: path=%s state=directory
+    file: path={{dest_file}}%s state=directory
   - name: Copy file
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
     """ % (sourse, dest, dir_for_create)
