@@ -52,11 +52,11 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
+                print(session.communicate()[0].decode('UTF-8'))
                 return False
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
+                print(session.communicate()[0].decode('UTF-8'))
                 return False
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def yaml_parser(self, path):
@@ -144,7 +144,6 @@ exit;"""
                                 sys.exit(f'Release installation was stopped due to an error in {patch.branch} in file {sql}')
                 if sas_list:
                     for sas in sas_list:
-                        #self.ssh_copy(sas, self.target_dir)
                         path = self.run_shell_command("pwd")
                         self.ansible_copy(f"{path.strip()}/{sas}", self.target_dir)
                 if patch_is_installed:
