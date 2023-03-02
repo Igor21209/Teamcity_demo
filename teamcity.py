@@ -52,11 +52,11 @@ class Teamcity:
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
+                print(session.communicate()[0].decode('UTF-8'))
                 return False
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
+                print(session.communicate()[0].decode('UTF-8'))
                 return False
-                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def yaml_parser(self, path):
@@ -144,7 +144,6 @@ exit;"""
                                 sys.exit(f'Release installation was stopped due to an error in {patch.branch} in file {sql}')
                 if sas_list:
                     for sas in sas_list:
-                        #self.ssh_copy(sas, self.target_dir)
                         path = self.run_shell_command("pwd")
                         self.ansible_copy(f"{path.strip()}/{sas}", self.target_dir)
                 if patch_is_installed:
@@ -154,7 +153,31 @@ exit;"""
             sys.exit(f"Patches order does not match commits order")
 
     def ansible_copy(self, sourse, dest):
-        playbook = """---
+        flag = False
+        dirs = re.split('/', sourse)
+        create_dirs = ''
+        for i in dirs:
+            if i == dirs[-1]:
+                break
+            create_dirs = create_dirs + i + '/'
+        create = re.search('SAS/(.+)', create_dirs)
+        if create:
+            flag = True
+            dir_for_create = create.group(1)
+            playbook1 = """---
+- name: copy dir
+  hosts: all
+  become: yes
+  vars:
+    - sourse_file : %s
+    - dest_file   : %s
+  tasks:
+  - name: Create dirs
+    file: path={{dest_file}}%s state=directory
+  - name: Copy file
+    copy: src={{sourse_file}} dest={{dest_file}}%s mode=777
+    """ % (sourse, dest, dir_for_create, dir_for_create)
+        playbook2 = """---
 - name: copy dir
   hosts: all
   become: yes
@@ -166,7 +189,10 @@ exit;"""
     copy: src={{sourse_file}} dest={{dest_file}} mode=777
     """ % (sourse, dest)
         with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.yaml', dir='/tmp') as fp:
-            fp.write(playbook)
+            if flag:
+                fp.write(playbook1)
+            else:
+                fp.write(playbook2)
             fp.flush()
             skript = f"ansible-playbook {fp.name}"
             res = self.run_shell_command(skript)
