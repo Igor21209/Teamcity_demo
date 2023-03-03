@@ -105,6 +105,11 @@ exit;"""
                     sys.exit(f'Error while executing rollback sql code in file {skript}')
 
     def install_release(self, patches_from_deploy_order):
+        current_branch = self.get_current_branch()
+        check_commit = self.check_actual_commit(current_branch)
+        print(check_commit)
+        if not check_commit:
+            sys.exit(f"The branch {current_branch} was't made from the actual commit of {self.target_branch} branch")
         patches = patches_from_deploy_order.get('patch')
         patches_for_install = self.get_patches_for_install(patches)
         if len(patches_for_install) == 0:
@@ -230,9 +235,20 @@ exit;"""
                 sys.exit('Error while copying file on the server')
         create_dirs = ''
 
+    def check_actual_commit(self, branch):
+        check_command = f"git merge-base --is-ancestor {self.target_branch} {branch} && echo $?"
+        process = Popen(args=check_command, stdout=PIPE, shell=True)
+        if process.communicate()[0].decode('UTF-8') == '0':
+            return True
+        else:
+            return False
+
     def run_shell_command(self, command):
         process = Popen(args=command, stdout=PIPE, shell=True)
-        return process.communicate()[0].decode('UTF-8')
+        res = process.communicate()
+        if res and process.returncode != 0:
+            sys.exit(f"Error while executing command {command} \n {res[0].decode('UTF-8')}")
+        return res[0].decode('UTF-8')
 
     def get_commit_version(self, sql_path, commit):
         command_1 = f'git show {commit}:./{sql_path}'
