@@ -238,7 +238,9 @@ exit;"""
         check_command = f"git merge-base --is-ancestor {self.target_branch} {branch} && echo $?"
         process = Popen(args=check_command, stdout=PIPE, shell=True)
         res = process.communicate()[0].decode('UTF-8')
+        print("HERE!")
         print(res)
+        print(type(res))
         if res == '0':
             return True
         else:
