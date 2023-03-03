@@ -107,6 +107,8 @@ exit;"""
     def install_release(self, patches_from_deploy_order):
         current_branch = self.get_current_branch()
         check_commit = self.check_actual_commit(current_branch)
+        print("HERE!")
+        print(check_commit)
         if not check_commit:
             sys.exit(f"The branch {current_branch} was't made from the actual commit of {self.target_branch} branch")
         patches = patches_from_deploy_order.get('patch')
