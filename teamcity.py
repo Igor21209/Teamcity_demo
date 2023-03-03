@@ -10,7 +10,6 @@ from datetime import datetime
 import os
 
 
-
 @dataclass
 class Commit:
     commit: str = None
