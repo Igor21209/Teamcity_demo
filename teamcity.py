@@ -107,8 +107,6 @@ exit;"""
     def install_release(self, patches_from_deploy_order):
         current_branch = self.get_current_branch()
         check_commit = self.check_actual_commit(current_branch)
-        print("HERE!")
-        print(check_commit)
         if not check_commit:
             sys.exit(f"The branch {current_branch} was't made from the actual commit of {self.target_branch} branch")
         patches = patches_from_deploy_order.get('patch')
@@ -240,7 +238,6 @@ exit;"""
         check_command = f"git merge-base --is-ancestor {self.target_branch} {branch} && echo $?"
         process = Popen(args=check_command, stdout=PIPE, shell=True)
         if process.communicate()[0].decode('UTF-8') == '0':
-            print(process.communicate()[0].decode('UTF-8'))
             return True
         else:
             return False
