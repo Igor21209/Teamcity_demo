@@ -237,7 +237,8 @@ exit;"""
     def check_actual_commit(self, branch):
         check_command = f"git merge-base --is-ancestor {self.target_branch} {branch} && echo $?"
         process = Popen(args=check_command, stdout=PIPE, shell=True)
-        if process.communicate()[0].decode('UTF-8') == '0':
+        res = process.communicate()[0].decode('UTF-8').strip()
+        if res == '0':
             return True
         else:
             return False
